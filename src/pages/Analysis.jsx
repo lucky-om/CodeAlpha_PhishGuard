@@ -1,0 +1,251 @@
+/* coded by lucky */
+import { useState, useEffect, useRef } from 'react';
+import { analyzeUrl } from '../utils/detectorLogic';
+import { Search, ShieldAlert, AlertTriangle, ShieldCheck, Info, Cpu, Terminal as TerminalIcon, Loader2, Bug, Lock, Server } from 'lucide-react';
+import { useGame } from '../context/GameContext';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
+
+export default function Analysis() {
+  const [url, setUrl] = useState('');
+  const [report, setReport] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const consoleEndRef = useRef(null);
+  const { markSectionComplete } = useGame();
+
+  const addLog = (msg, type = 'info') => {
+    const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    setLogs(prev => [...prev, { time, msg, type }]);
+  };
+
+  useEffect(() => {
+    if (consoleEndRef.current) {
+      consoleEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [logs]);
+
+  /**
+   * Secure URL Audit Simulation
+   * Act as secure coding person: provide detailed logs of the security inspection.
+   */
+  const runSimulation = async (targetUrl) => {
+    setIsAnalyzing(true);
+    setReport(null);
+    setLogs([]);
+
+    const steps = [
+      { msg: 'System integrity check... OK', type: 'sys' },
+      { msg: 'Initializing Lucky\'s Secure Sandboxed Inspection Engine...', type: 'sys' },
+      { msg: 'Binding to local proxy for traffic obfuscation...', type: 'sys' },
+      { msg: `Analyzing Target: ${targetUrl}`, type: 'bot' },
+      { msg: 'Extracting DNS records and WHOIS privacy status...', type: 'bot' },
+      { msg: 'Validating SSL/TLS Cipher Suites and Handshake...', type: 'sys' },
+      { msg: 'Scraping page elements for cross-domain script injections...', type: 'bot' },
+      { msg: 'Checking for phishing kits and hidden form fields...', type: 'bot' },
+      { msg: 'Mapping redirect chains for malicious obfuscation...', type: 'sys' },
+      { msg: 'Executing heuristic patterns vs global threat database...', type: 'sys' },
+      { msg: 'Finalizing security audit report...', type: 'sys' },
+    ];
+
+    for (const step of steps) {
+      addLog(step.msg, step.type);
+      await new Promise(r => setTimeout(r, Math.random() * 600 + 300));
+    }
+
+    const result = analyzeUrl(targetUrl);
+    setReport(result);
+    setIsAnalyzing(false);
+    markSectionComplete('detector', 20);
+    addLog('Security Audit complete. Assessment report generated.', 'success');
+  };
+
+  const handleAnalyze = (e) => {
+    e.preventDefault();
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) return;
+
+    // Reject random garbage strings (security improvement)
+    if (!trimmedUrl.includes('.') || trimmedUrl.length < 5) {
+      addLog('Error: Input Rejected. Please provide a valid FQDN or URL structure.', 'bot');
+      return;
+    }
+
+    runSimulation(trimmedUrl);
+  };
+
+  return (
+    <Motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-12 pb-20"
+    >
+      <div className="text-center space-y-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 text-xs font-mono font-bold uppercase">
+          Lucky's Threat Intelligence Lab
+        </div>
+        <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white">
+          AI-Driven Security Audit
+        </h2>
+        <p className="text-slate-500 max-w-2xl mx-auto">
+          Deploy an autonomous security agent to safely inspect suspicious domains. All connection metadata is analyzed in a strictly isolated container to protect your host system.
+        </p>
+      </div>
+
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Input area */}
+        <form onSubmit={handleAnalyze} className="relative group">
+          <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+            <Lock className="h-6 w-6 text-slate-400 group-focus-within:text-cyan-500 transition-colors" />
+          </div>
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            disabled={isAnalyzing}
+            placeholder="Audit URL (e.g., https://secure-login.amazon.org)"
+            className="block w-full pl-16 pr-44 py-6 bg-white dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-[2rem] focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500 transition-all text-lg shadow-2xl outline-none disabled:opacity-50 font-mono"
+          />
+          <button
+            type="submit"
+            disabled={isAnalyzing || !url.trim()}
+            className="absolute inset-y-3 right-3 px-8 bg-cyan-600 hover:bg-cyan-500 text-white rounded-[1.5rem] font-bold transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-cyan-500/20"
+          >
+            {isAnalyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Server className="w-5 h-5" />}
+            {isAnalyzing ? 'Auditing...' : 'Run Audit'}
+          </button>
+        </form>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Virtual Terminal Console */}
+          <div className="bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col h-[450px]">
+            <div className="bg-slate-900 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TerminalIcon className="w-4 h-4 text-cyan-500" />
+                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-[0.2em] font-bold">Audit Live Logs</span>
+              </div>
+              <div className="flex gap-1.5 text-slate-800 font-bold text-[8px]">
+                V1.0.4-LUCKY
+              </div>
+            </div>
+            <div className="flex-1 p-6 font-mono text-xs overflow-y-auto space-y-2 custom-scrollbar">
+              <AnimatePresence>
+                {logs.length === 0 && (
+                  <p className="text-slate-700 italic">SECURE CONSOLE IDLE // WAITING FOR INGRESS</p>
+                )}
+                {logs.map((log, i) => (
+                  <Motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex gap-3 border-l border-slate-800 pl-3"
+                  >
+                    <span className="text-slate-700 shrink-0">{log.time}</span>
+                    <span className={`leading-relaxed ${log.type === 'sys' ? 'text-slate-500' :
+                        log.type === 'bot' ? 'text-cyan-500 font-bold' :
+                          log.type === 'success' ? 'text-emerald-500' : 'text-slate-300'
+                      }`}>
+                      {log.type === 'bot' ? '>>> ' : '### '}
+                      {log.msg}
+                    </span>
+                  </Motion.div>
+                ))}
+              </AnimatePresence>
+              <div ref={consoleEndRef} />
+            </div>
+          </div>
+
+          {/* Assessment Report */}
+          <div className="relative">
+            <AnimatePresence mode="wait">
+              {!report && !isAnalyzing ? (
+                <Motion.div
+                  key="empty"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="h-full flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-900/40 text-center"
+                >
+                  <Bug className="w-16 h-16 text-slate-300 dark:text-white/5 mb-4" />
+                  <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">Awaiting Remote Connection</p>
+                </Motion.div>
+              ) : isAnalyzing ? (
+                <Motion.div
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="h-full flex flex-col items-center justify-center space-y-4"
+                >
+                  <div className="relative">
+                    <div className="w-24 h-24 border-4 border-cyan-500/10 border-t-cyan-500 rounded-full animate-spin"></div>
+                    <ShieldCheck className="w-10 h-10 text-cyan-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                  </div>
+                  <p className="font-mono text-xs text-cyan-500 animate-pulse tracking-widest uppercase">Sandboxed Environment Analysis In Progress</p>
+                </Motion.div>
+              ) : (
+                <Motion.div
+                  key="report"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden h-full"
+                >
+                  <div className={`p-6 border-b flex items-center justify-between ${report.riskLevel === 'High' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' :
+                      report.riskLevel === 'Medium' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
+                        'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                    }`}>
+                    <div className="flex items-center gap-4">
+                      {report.riskLevel === 'High' ? <ShieldAlert className="w-10 h-10" /> :
+                        report.riskLevel === 'Medium' ? <AlertTriangle className="w-10 h-10" /> :
+                          <ShieldCheck className="w-10 h-10" />}
+                      <div>
+                        <h3 className="text-xl font-black uppercase tracking-tighter italic">Threat Score: {report.riskScore}/10</h3>
+                        <p className="text-xs uppercase font-mono font-bold tracking-widest">Status: {report.riskLevel} Risk</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-8 space-y-8">
+                    <div>
+                      <h4 className="text-[10px] font-mono uppercase tracking-[0.3em] text-slate-500 mb-6 font-bold underline decoration-cyan-500/50 underline-offset-8">Critical Findings</h4>
+                      <ul className="space-y-4">
+                        {report.flags.map((flag, idx) => (
+                          <li key={idx} className="flex gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm transition-hover hover:border-cyan-500/30">
+                            {flag.type === 'critical' ? <ShieldAlert className="w-5 h-5 text-rose-500 mt-0.5 shrink-0" /> :
+                              flag.type === 'warning' ? <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5 shrink-0" /> :
+                                <ShieldCheck className="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />}
+                            <div>
+                              <p className={`font-bold text-sm leading-tight ${flag.type === 'critical' ? 'text-rose-600 dark:text-rose-400' :
+                                  flag.type === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
+                                    'text-emerald-600 dark:text-emerald-400'
+                                }`}>{flag.message}</p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="p-5 bg-slate-900 border border-slate-800 rounded-2xl relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                        <Lock className="w-20 h-20 text-white" />
+                      </div>
+                      <div className="flex items-center gap-2 text-cyan-500 mb-3">
+                        <Info className="w-4 h-4" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em]">Security Advisory</span>
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                        {report.riskLevel === 'High'
+                          ? "CRITICAL: Connection signatures strongly correlate with malicious credential harvesting clusters. Host access denied."
+                          : report.riskLevel === 'Medium'
+                            ? "WARNING: Structural anomalies detected. URL may be a zero-day domain or part of an obscure phishing campaign."
+                            : "PASS: Heuristic verification complete. URL structure aligns with standard commercial FQDN signatures."}
+                      </p>
+                    </div>
+                  </div>
+                </Motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </Motion.div>
+  );
+}
