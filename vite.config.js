@@ -7,5 +7,5 @@ import tailwindcss from '@tailwindcss/vite'
 // base: './' ensures asset paths work on both custom domains and subfolders
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: './', 
+  base: '/', 
 })
