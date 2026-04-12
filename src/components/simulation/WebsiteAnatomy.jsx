@@ -1,11 +1,20 @@
-/* coded by lucky */
+/* WebsiteAnatomy.jsx — Phishing Landing Page Forensic Simulator
+   Renders high-fidelity browser mockups of real-world phishing landing pages.
+   Interactive numbered beacons overlay the page; clicking one highlights
+   the corresponding card in the left sidebar and expands the forensic explanation.
+   Coded by Lucky | Om Patel */
+
 import { useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import { 
-  ShieldAlert, Info, ExternalLink, MousePointer2, AlertTriangle, 
-  Lock, Globe, Search, ArrowRight, Eye, Monitor, CreditCard
+import {
+  ShieldAlert, ExternalLink, Lock, Globe, Search,
+  Eye, Monitor, CreditCard, X, MousePointer2
 } from 'lucide-react';
 
+// Each entry defines one phishing scenario:
+//   html     — the fake page content rendered inside the browser mockup
+//   hotspots — beacon positions (% values relative to the mockup container)
+//              and the forensic explanation shown when a beacon is clicked
 const anatomyData = [
   {
     id: 'gpay',
@@ -13,261 +22,329 @@ const anatomyData = [
     title: 'Deceptive Payment Verification',
     description: 'Attackers create fake payment verification portals to harvest banking credentials and UPI PINs.',
     url: 'https://gpay.secure-verify-up.in/login',
-    logo: 'https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png',
     hotspots: [
-      { id: 1, top: '10%', left: '40%', title: 'The URL', content: 'Notice the domain: "secure-verify-up.in" instead of "google.com". Attackers use hyphens and keywords like "secure" to deceive you.' },
-      { id: 2, top: '45%', left: '70%', title: 'Urgency Banner', content: 'Phrases like "Account will be blocked if not verified within 2 hours" force quick, emotional decisions.' },
-      { id: 3, top: '75%', left: '50%', title: 'PIN Request', content: 'Official apps never ask for your UPI PIN or Bank Password on a website. They only ask for it inside the secure app interface.' }
+      {
+        id: 1, top: '12%', left: '42%',
+        title: 'Suspicious Domain',
+        tactic: 'Domain Impersonation',
+        content: '"secure-verify-up.in" is NOT owned by Google. The real Google Pay uses pay.google.com. Attackers add words like "secure" and "verify" to appear trustworthy. Always verify the full domain — not just the keywords.',
+      },
+      {
+        id: 2, top: '38%', left: '72%',
+        title: 'Urgency Banner',
+        tactic: 'Psychological Pressure',
+        content: '"Account will be blocked" forces an immediate panic response. This deliberate urgency shortens your decision window so you act without inspecting the URL or contacting the real bank.',
+      },
+      {
+        id: 3, top: '78%', left: '50%',
+        title: 'UPI PIN Request',
+        tactic: 'Credential Harvesting',
+        content: 'Official Google Pay and all RBI-regulated apps NEVER ask for your UPI PIN on a website. The PIN is exclusively entered inside the secure, sandboxed app environment. Any web page asking for it is 100% fraudulent.',
+      },
     ],
     html: (
       <div className="bg-white h-full flex flex-col items-center p-8 font-sans">
         <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" className="w-24 mb-8" />
         <div className="w-full max-w-sm border border-slate-200 rounded-xl p-6 space-y-6">
           <div className="bg-rose-50 p-3 rounded-lg border border-rose-100 flex items-center gap-3">
-             <AlertTriangle className="w-5 h-5 text-rose-500" />
-             <span className="text-xs font-bold text-rose-700 uppercase">Action Required: Verify Account</span>
+            <ShieldAlert className="w-5 h-5 text-rose-500 shrink-0" />
+            <span className="text-xs font-bold text-rose-700 uppercase">Action Required: Verify Account</span>
           </div>
           <h4 className="font-bold text-slate-800">Verify your Google Pay Account</h4>
-          <p className="text-sm text-slate-600">Your account has been flagged for suspicious activity. Please verify your UPI PIN to continue using G-Pay services.</p>
+          <p className="text-sm text-slate-600">Your account has been flagged for suspicious activity. Please verify your UPI PIN to continue.</p>
           <div className="space-y-4">
-             <input disabled type="password" placeholder="Enter UPI PIN" className="w-full p-3 border rounded-lg text-sm bg-slate-50" />
-             <button className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg">Verify Now</button>
+            <input disabled type="password" placeholder="Enter UPI PIN" className="w-full p-3 border rounded-lg text-sm bg-slate-50" />
+            <button className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg">Verify Now</button>
           </div>
         </div>
       </div>
-    )
+    ),
   },
   {
     id: 'netflix',
     brand: 'Netflix',
     title: 'Subscription Renewal Phish',
-    description: 'One of the most common phishing attacks. Aimed at stealing Credit Card details by claiming a payment failure.',
+    description: 'One of the most common phishing attacks — stealing credit card details by simulating a payment failure.',
     url: 'https://netflix-billing-update.com/account',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg',
     hotspots: [
-      { id: 1, top: '12%', left: '45%', title: 'Suspicious TLD', content: 'Netflix uses "netflix.com". Any domain like "netflix-billing.com" is 100% malicious.' },
-      { id: 2, top: '35%', left: '15%', title: 'Low Quality Images', content: 'Phishing sites often have slightly pixelated logos or non-standard fonts that don\'t quite match the real brand experience.' },
-      { id: 3, top: '65%', left: '80%', title: 'Data Harvesting', content: 'Look at the data requested: CCV, Expiry, and Full Name all on one page before even logging in is a massive red flag.' }
+      {
+        id: 1, top: '10%', left: '45%',
+        title: 'Fake Domain with Suspicious TLD',
+        tactic: 'Domain Spoofing',
+        content: '"netflix-billing-update.com" is not Netflix. Netflix only communicates from netflix.com. Any domain containing the brand name as a prefix or with a hyphenated suffix is almost certainly malicious.',
+      },
+      {
+        id: 2, top: '32%', left: '14%',
+        title: 'Off-Brand Logo Quality',
+        tactic: 'Visual Fidelity Attack',
+        content: 'Phishing sites often have slightly misaligned logos, wrong font weights, or incorrect brand colors. The Netflix logo here uses a slightly different red (#D40000 vs the real #E50914). Pixel differences are intentional to avoid automated detection.',
+      },
+      {
+        id: 3, top: '68%', left: '78%',
+        title: 'Full Card Data on First Page',
+        tactic: 'Data Harvesting',
+        content: 'Asking for Card Number, Expiry, AND CVV all at once — before even verifying your identity — is a critical red flag. Real streaming platforms prompt for individual fields progressively and never ask for CVV during routine billing updates.',
+      },
     ],
     html: (
       <div className="bg-black h-full flex flex-col items-center p-8 font-sans">
-        <div className="w-full flex justify-between items-center mb-12">
-           <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix" className="w-24" />
+        <div className="w-full flex justify-between items-center mb-10">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix" className="w-24" />
         </div>
-        <div className="w-full max-w-md space-y-8">
-           <h1 className="text-3xl font-bold text-white">Update your payment method.</h1>
-           <p className="text-white/80">Your last payment failed. Please update your billing information to keep watching the latest movies and TV shows.</p>
-           <div className="space-y-4">
-              <input disabled placeholder="Card Number" className="w-full p-4 bg-zinc-800 border-none text-white rounded" />
-              <div className="flex gap-4">
-                 <input disabled placeholder="Expiry (MM/YY)" className="w-1/2 p-4 bg-zinc-800 border-none text-white rounded" />
-                 <input disabled placeholder="CVV" className="w-1/2 p-4 bg-zinc-800 border-none text-white rounded" />
-              </div>
-              <button className="w-full py-4 bg-red-600 text-white font-bold rounded">SAVE & CONTINUE</button>
-           </div>
+        <div className="w-full max-w-md space-y-6">
+          <h1 className="text-3xl font-bold text-white">Update your payment method.</h1>
+          <p className="text-white/70">Your last payment failed. Update your billing information to keep watching.</p>
+          <div className="space-y-4">
+            <input disabled placeholder="Card Number" className="w-full p-4 bg-zinc-800 text-white rounded border-none" />
+            <div className="flex gap-4">
+              <input disabled placeholder="Expiry (MM/YY)" className="w-1/2 p-4 bg-zinc-800 text-white rounded border-none" />
+              <input disabled placeholder="CVV" className="w-1/2 p-4 bg-zinc-800 text-white rounded border-none" />
+            </div>
+            <button className="w-full py-4 bg-red-600 text-white font-bold rounded">SAVE &amp; CONTINUE</button>
+          </div>
         </div>
       </div>
-    )
+    ),
   },
   {
     id: 'google-search',
-    brand: 'Google Search',
-    title: 'Search Engine Phishing',
-    description: 'Attackers use paid ads to place malicious links at the top of Google Search results, bypassing organic safety checks.',
+    brand: 'Search Engine Phishing',
+    title: 'Malvertising via Google Ads',
+    description: 'Attackers pay for sponsored ads to place malicious links at the top of search results, bypassing organic safety checks.',
     url: 'https://support.google.com/search?q=Metamask+Login',
-    logo: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png',
     hotspots: [
-      { id: 1, top: '25%', left: '15%', title: 'Sponsored Tag', content: 'Malicious actors frequently pay for ads. Just because it is a "Sponsored" result doesn\'t mean Google has verified the content of the site.' },
-      { id: 2, top: '28%', left: '40%', title: 'The Fake URL', content: 'A common tactic: "nmetarnask.io" (replacing m with rn). Always hover over a link in search results to see the actual destination.' },
-      { id: 3, top: '60%', left: '20%', title: 'Malicious Call to Action', content: 'Headlines like "Official Secure Login" are used to build trust before leading you to a seed phrase harvesting page.' }
+      {
+        id: 1, top: '26%', left: '14%',
+        title: '"Sponsored" Doesn\'t Mean Safe',
+        tactic: 'Malvertising',
+        content: 'Google Ads allows anyone to pay for any keyword. Even legitimate-looking ads can link to phishing pages. Google only verifies payment, not the safety of the destination site. Never trust ranking alone.',
+      },
+      {
+        id: 2, top: '30%', left: '42%',
+        title: 'Typosquatted URL in Ad',
+        tactic: 'Homograph / Typosquat',
+        content: '"nmetarnask.io" uses the classic "rn" → "m" trick (replace m with r+n). At a glance, it reads as "metamask". Always hover over a link in search results to expand the URL bar tooltip before clicking.',
+      },
+      {
+        id: 3, top: '60%', left: '20%',
+        title: 'Fabricated Authority in Headline',
+        tactic: 'Social Engineering',
+        content: '"Official Secure Login" and "Most Trusted Crypto Wallet" in the ad headline builds false authority. These claims are self-asserted and completely unverified by Google. Legitimate sites don\'t need to call themselves "official" in an ad.',
+      },
     ],
     html: (
-      <div className="bg-white dark:bg-slate-900 h-full p-8 font-sans text-slate-900 dark:text-slate-100">
+      <div className="bg-white h-full p-8 font-sans text-slate-900">
         <div className="max-w-2xl mx-auto space-y-6">
-           <div className="flex items-center gap-4 mb-8">
-              <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" className="w-20" />
-              <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-full h-10 px-4 flex items-center text-sm">Metamask Wallet Extension</div>
-           </div>
-           
-           {/* Malicious Result */}
-           <div className="space-y-1">
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                 <span className="font-bold text-slate-900 dark:text-white">Sponsored</span>
-                 <span>· https://www.nmetarnask.io</span>
-              </div>
-              <h3 className="text-xl text-blue-700 dark:text-blue-400 font-medium hover:underline cursor-pointer">Metamask Official - Secure Wallet Login & Extension</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Download the most trusted crypto wallet. Access your assets securely. Official site of Metamask. Secure your seed phrase now.</p>
-           </div>
-
-           {/* Real Result */}
-           <div className="space-y-1 mt-8 opacity-40">
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                 <span>https://metamask.io</span>
-              </div>
-              <h3 className="text-xl text-blue-700 dark:text-blue-400 font-medium">MetaMask | A crypto wallet & gateway to blockchain apps</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">A crypto wallet & gateway to blockchain apps. Start exploring blockchain applications in seconds. Trusted by over 30 million users worldwide.</p>
-           </div>
+          <div className="flex items-center gap-4 mb-8">
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" className="w-20" />
+            <div className="flex-1 bg-slate-100 rounded-full h-10 px-4 flex items-center text-sm text-slate-600">Metamask Wallet Extension</div>
+          </div>
+          {/* Malicious sponsored result — highlighted above the real result */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <span className="font-bold text-slate-900 border border-slate-300 px-1 rounded text-[10px]">Sponsored</span>
+              <span>· https://www.nmetarnask.io</span>
+            </div>
+            <h3 className="text-xl text-blue-700 font-medium hover:underline cursor-pointer">Metamask Official — Secure Wallet Login &amp; Extension</h3>
+            <p className="text-sm text-slate-600">Download the most trusted crypto wallet. Access your assets securely. Official site of Metamask.</p>
+          </div>
+          {/* Legitimate result shown faded to contrast with the phishing one */}
+          <div className="space-y-1 mt-8 opacity-30">
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <span>https://metamask.io</span>
+            </div>
+            <h3 className="text-xl text-blue-700 font-medium">MetaMask | A crypto wallet &amp; gateway to blockchain apps</h3>
+            <p className="text-sm text-slate-600">Trusted by over 30 million users worldwide.</p>
+          </div>
         </div>
       </div>
-    )
-  }
+    ),
+  },
 ];
 
 export default function WebsiteAnatomy() {
   const [activeTab, setActiveTab] = useState(anatomyData[0]);
-  const [hoveredHotspot, setHoveredHotspot] = useState(null);
 
-  /**
-   * ACT AS SECURE CODING PERSON:
-   * Ensure the UI is clear and interactive while maintaining high contrast for educational efficacy.
-   */
+  // null = no beacon selected; otherwise holds the full hotspot object
+  const [activeHotspot, setActiveHotspot] = useState(null);
+
+  const handleTabChange = (brand) => {
+    setActiveTab(brand);
+    setActiveHotspot(null); // Clear selection when switching scenarios
+  };
+
+  // Toggle: clicking the active beacon closes it; clicking another opens it
+  const toggleHotspot = (spot) => {
+    setActiveHotspot(prev => prev?.id === spot.id ? null : spot);
+  };
+
   return (
     <div className="space-y-8">
-      {/* Brand Selection Tabs - STICKY TOP */}
-      <div className="sticky top-0 z-50 py-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-         <div className="flex flex-wrap gap-3 justify-center max-w-7xl mx-auto px-4">
-            {anatomyData.map((brand) => (
-               <button
-                  key={brand.id}
-                  onClick={() => { setActiveTab(brand); setHoveredHotspot(null); }}
-                  className={`px-6 py-2.5 rounded-xl font-bold transition-all border-2 flex items-center gap-2 text-sm ${
-                     activeTab.id === brand.id 
-                     ? 'bg-cyan-600 border-cyan-600 text-white shadow-lg shadow-cyan-600/20' 
-                     : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 hover:border-cyan-500/50'
-                  }`}
-               >
-                  {brand.id === 'gpay' && <CreditCard className="w-4 h-4" />}
-                  {brand.id === 'netflix' && <Monitor className="w-4 h-4" />}
-                  {brand.id === 'google-search' && <Search className="w-4 h-4" />}
-                  {brand.brand}
-               </button>
-            ))}
-         </div>
+
+      {/* Scenario selector — sticky so it stays visible while scrolling the mockup */}
+      <div className="sticky top-20 z-50 py-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
+        <div className="flex flex-wrap gap-3 justify-center max-w-7xl mx-auto px-4">
+          {anatomyData.map((brand) => (
+            <button
+              key={brand.id}
+              onClick={() => handleTabChange(brand)}
+              className={`px-6 py-2.5 rounded-xl font-bold transition-all border-2 flex items-center gap-2 text-sm ${
+                activeTab.id === brand.id
+                  ? 'bg-cyan-600 border-cyan-600 text-white shadow-lg shadow-cyan-600/20'
+                  : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 hover:border-cyan-500/50'
+              }`}
+            >
+              {brand.id === 'gpay'         && <CreditCard className="w-4 h-4" />}
+              {brand.id === 'netflix'       && <Monitor className="w-4 h-4" />}
+              {brand.id === 'google-search' && <Search className="w-4 h-4" />}
+              {brand.brand}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start px-4">
-        {/* Info Area */}
+
+        {/* ── Left panel: title, description, and hotspot cards ── */}
         <div className="xl:col-span-4 space-y-6 order-2 xl:order-1">
-          <Motion.div
-            key={activeTab.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
-          >
+          <Motion.div key={activeTab.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-mono font-bold uppercase tracking-widest">
-               Forensic Analysis Case
+              Forensic Analysis Case
             </div>
-            <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-               {activeTab.title}
-            </h3>
-            <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-md font-medium">
-               {activeTab.description}
-            </p>
-            
-            <div className="p-8 rounded-[2rem] bg-slate-950 border border-slate-800 text-slate-400 space-y-6 shadow-2xl relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-4 opacity-[0.05]">
-                  <Bug className="w-20 h-20 text-white" />
-               </div>
-               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-cyan-500">
-                  <Eye className="w-4 h-4" /> Technical Insights
-               </div>
-               <AnimatePresence mode="wait">
-                  {hoveredHotspot ? (
-                    <Motion.div
-                       key={hoveredHotspot.id}
-                       initial={{ opacity: 0, y: 10 }}
-                       animate={{ opacity: 1, y: 0 }}
-                       exit={{ opacity: 0, y: -10 }}
-                       className="space-y-3 relative z-10"
-                    >
-                       <h4 className="font-black text-white flex items-center gap-3 text-lg">
-                          <span className="w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center text-sm">{hoveredHotspot.id}</span>
-                          {hoveredHotspot.title}
-                       </h4>
-                       <p className="text-sm leading-relaxed text-slate-300 italic">{hoveredHotspot.content}</p>
-                    </Motion.div>
-                  ) : (
-                    <Motion.div 
-                       key="empty"
-                       initial={{ opacity: 0 }}
-                       animate={{ opacity: 1 }}
-                       className="space-y-4 relative z-10"
-                    >
-                       <p className="text-sm italic text-slate-500">
-                          PROMPT: Initiate interactive audit by hovering over the pulsing forensic beacons on the browser mockup.
-                       </p>
-                       <div className="flex gap-2">
-                          <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                          <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-                          <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-                       </div>
-                    </Motion.div>
-                  )}
-               </AnimatePresence>
-            </div>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{activeTab.title}</h3>
+            <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm font-medium">{activeTab.description}</p>
           </Motion.div>
+
+          {/* Hotspot list — mirrors the beacons on the mockup.
+              Clicking either a beacon or this card toggles the expanded description. */}
+          <div className="space-y-3">
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 flex items-center gap-2">
+              <MousePointer2 className="w-4 h-4" />
+              Click beacons on the page mockup:
+            </p>
+            {activeTab.hotspots.map((spot) => {
+              const isActive = activeHotspot?.id === spot.id;
+              return (
+                <button
+                  key={spot.id}
+                  onClick={() => toggleHotspot(spot)}
+                  className={`w-full text-left p-5 rounded-2xl border-2 transition-all flex items-start gap-4 ${
+                    isActive
+                      ? 'bg-rose-500/10 border-rose-500'
+                      : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-rose-500/40'
+                  }`}
+                >
+                  {/* Beacon turns cyan when active to match the mockup overlay */}
+                  <span className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-black shadow-lg transition-colors ${isActive ? 'bg-cyan-600' : 'bg-rose-600'}`}>
+                    {spot.id}
+                  </span>
+                  <div className="min-w-0 space-y-0.5">
+                    <div className={`text-[9px] font-black uppercase tracking-widest ${isActive ? 'text-rose-500' : 'text-slate-400'}`}>{spot.tactic}</div>
+                    <div className="font-black text-slate-900 dark:text-white text-sm leading-tight">{spot.title}</div>
+                    {isActive && (
+                      <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                        className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium pt-2">
+                        {spot.content}
+                      </Motion.p>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Shown when no beacon is selected — prompts user to start exploring */}
+          {!activeHotspot && (
+            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 text-slate-500 text-xs font-mono italic space-y-2">
+              <div className="flex items-center gap-2 text-cyan-500 font-black text-[9px] uppercase tracking-widest">
+                <Eye className="w-4 h-4" /> Forensic Intel
+              </div>
+              <p>Select a numbered beacon on the browser mockup or click a row above to reveal tactical analysis.</p>
+              <div className="flex gap-2 pt-1">
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                <span className="w-2 h-2 rounded-full bg-rose-500" />
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Browser Mockup Area */}
+        {/* ── Right panel: browser chrome + phishing page + beacon overlay ── */}
         <div className="xl:col-span-8 order-1 xl:order-2">
-           <div className="bg-slate-300 dark:bg-slate-800 rounded-[2.5rem] p-1.5 shadow-3xl relative">
-              {/* Browser Controls */}
-              <div className="flex items-center gap-4 px-8 py-5 bg-slate-100 dark:bg-slate-900 rounded-t-[2.2rem] border-b dark:border-slate-800">
-                 <div className="flex gap-2.5 shrink-0">
-                    <div className="w-3.5 h-3.5 rounded-full bg-rose-500/80 shadow-inner"></div>
-                    <div className="w-3.5 h-3.5 rounded-full bg-yellow-500/80 shadow-inner"></div>
-                    <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/80 shadow-inner"></div>
-                 </div>
-                 <div className="flex-1 max-w-2xl bg-white dark:bg-slate-950 px-5 py-3 rounded-2xl text-xs font-mono flex items-center gap-3 border-2 border-slate-200 dark:border-slate-800 shadow-sm">
-                    <Lock className="w-4 h-4 text-emerald-500" />
-                    <span className="text-slate-400 dark:text-slate-500 truncate select-none">{activeTab.url}</span>
-                 </div>
-                 <div className="flex gap-5 text-slate-400 dark:text-slate-600">
-                    <Globe className="w-5 h-5 hover:text-cyan-500 cursor-pointer transition-colors" />
-                    <ExternalLink className="w-5 h-5" />
-                 </div>
+          <div className="bg-slate-300 dark:bg-slate-800 rounded-[2.5rem] p-1.5 shadow-2xl">
+
+            {/* Fake browser chrome bar */}
+            <div className="flex items-center gap-4 px-8 py-5 bg-slate-100 dark:bg-slate-900 rounded-t-[2.2rem] border-b dark:border-slate-800">
+              <div className="flex gap-2.5 shrink-0">
+                <div className="w-3.5 h-3.5 rounded-full bg-rose-500/80" />
+                <div className="w-3.5 h-3.5 rounded-full bg-yellow-500/80" />
+                <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/80" />
+              </div>
+              <div className="flex-1 max-w-2xl bg-white dark:bg-slate-950 px-5 py-3 rounded-2xl text-xs font-mono flex items-center gap-3 border-2 border-slate-200 dark:border-slate-800 shadow-sm">
+                {/* Green padlock shown to mimic how attackers use free SSL certificates to appear legitimate */}
+                <Lock className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span className="text-slate-400 dark:text-slate-500 truncate select-none">{activeTab.url}</span>
+              </div>
+              <div className="flex gap-3 text-slate-400 dark:text-slate-600">
+                <Globe className="w-5 h-5" />
+                <ExternalLink className="w-5 h-5" />
+              </div>
+            </div>
+
+            {/* Phishing page content + beacon overlay layer */}
+            <div className="relative overflow-hidden rounded-b-[2.2rem] min-h-[520px] bg-white border-2 border-t-0 dark:border-slate-800">
+
+              {/* Phishing page HTML — positioned absolute so beacons can overlay it */}
+              <div className="absolute inset-0 z-0">
+                <AnimatePresence mode="wait">
+                  <Motion.div key={activeTab.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
+                    {activeTab.html}
+                  </Motion.div>
+                </AnimatePresence>
               </div>
 
-              {/* Interaction Layer */}
-              <div className="relative overflow-hidden rounded-b-[2.2rem] min-h-[550px] bg-white border-2 border-t-0 dark:border-slate-800">
-                 <div className="absolute inset-0 z-0">
-                    {activeTab.html}
-                 </div>
-                 
-                 {/* Beacons Overlay - HIGH VISIBILITY */}
-                 <div className="absolute inset-0 z-20 pointer-events-none">
-                    {activeTab.hotspots.map((spot) => (
-                       <button
-                          key={spot.id}
-                          onMouseEnter={() => setHoveredHotspot(spot)}
-                          onMouseLeave={() => setHoveredHotspot(null)}
-                          className="absolute w-12 h-12 -ml-6 -mt-6 flex items-center justify-center group pointer-events-auto"
-                          style={{ top: spot.top, left: spot.left }}
-                       >
-                          <span className="absolute inset-0 w-full h-full rounded-full bg-rose-500/40 animate-[ping_1.5s_infinite] scale-150"></span>
-                          <span className="absolute inset-2 w-full h-full rounded-full bg-rose-500/20 animate-[ping_2s_infinite]"></span>
-                          <span className="relative w-8 h-8 rounded-full bg-rose-600 border-4 border-white dark:border-slate-900 shadow-[0_0_20px_rgba(225,29,72,0.5)] flex items-center justify-center text-xs font-black text-white group-hover:scale-125 group-hover:bg-cyan-600 transition-all duration-300">
-                             {spot.id}
-                          </span>
-                       </button>
-                    ))}
-                 </div>
-                 
-                 {/* Glassmorphic Overlay on selection change */}
-                 <AnimatePresence>
-                    <Motion.div
-                       key={activeTab.id + 'overlay'}
-                       initial={{ opacity: 1 }}
-                       animate={{ opacity: 0 }}
-                       transition={{ duration: 0.8 }}
-                       className="absolute inset-0 bg-slate-900/10 backdrop-blur-sm z-30 pointer-events-none"
-                    />
-                 </AnimatePresence>
+              {/* Beacon overlay — z-20 so it sits above the page content */}
+              <div className="absolute inset-0 z-20 pointer-events-none">
+                {activeTab.hotspots.map((spot) => {
+                  const isActive = activeHotspot?.id === spot.id;
+                  return (
+                    <button
+                      key={spot.id}
+                      onClick={() => toggleHotspot(spot)}
+                      className="absolute w-12 h-12 -ml-6 -mt-6 flex items-center justify-center group pointer-events-auto"
+                      style={{ top: spot.top, left: spot.left }}
+                      title={spot.title}
+                    >
+                      {/* Ping rings only shown when beacon is not active */}
+                      {!isActive && (
+                        <>
+                          <span className="absolute inset-0 w-full h-full rounded-full bg-rose-500/30 animate-[ping_1.5s_infinite] scale-150" />
+                          <span className="absolute inset-2 rounded-full bg-rose-500/15 animate-[ping_2.2s_infinite]" />
+                        </>
+                      )}
+                      <span className={`relative w-9 h-9 rounded-full border-4 border-white shadow-[0_0_20px_rgba(225,29,72,0.6)] flex items-center justify-center text-xs font-black text-white group-hover:scale-125 transition-all duration-300 ${isActive ? 'bg-cyan-600 scale-125' : 'bg-rose-600'}`}>
+                        {spot.id}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-           </div>
+
+              {/* Brief glassmorphic flash on scenario switch to signal content change */}
+              <AnimatePresence>
+                <Motion.div
+                  key={activeTab.id + '-overlay'}
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 0 }}
+                  transition={{ duration: 0.7 }}
+                  className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm z-30 pointer-events-none"
+                />
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   );
 }
-const Bug = ({ className }) => <ShieldAlert className={className} />;
