@@ -1,7 +1,7 @@
 # 🛡️ PhishGuard Security Platform
 > **Next-Gen Cyber-Threat Intelligence & Educational Simulation Engine**
 
-![PhishGuard Version](https://img.shields.io/badge/version-1.0.0--stable-cyan?style=for-the-badge&logo=shield)
+![PhishGuard Version](https://img.shields.io/badge/version-2.0.1--stable-cyan?style=for-the-badge&logo=shield)
 ![Status](https://img.shields.io/badge/Status-Verified-emerald?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Proprietary-rose?style=for-the-badge)
 
