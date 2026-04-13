@@ -8,7 +8,8 @@ import { GameProvider } from './context/GameContext.jsx'
 
 // Handle GitHub Pages path vs Custom Domain
 const hostname = window.location.hostname;
-const basename = hostname === 'phishguard.luckyverse.tech' ? '/' : (hostname.includes('github.io') ? '/CodeAlpha_PhishGuard' : '/');
+const isCustomDomain = hostname === 'phishguard.luckyverse.tech';
+const basename = isCustomDomain ? '/' : (hostname.includes('github.io') ? '/CodeAlpha_PhishGuard' : '/');
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
