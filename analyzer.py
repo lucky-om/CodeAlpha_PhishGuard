@@ -1,7 +1,7 @@
 """
 LUCKY_INTEL_SYSTEM: analyzer.py
 Proprietary PhishGuard Threat Analysis Engine
-Version: 2.0.0 Stable — Real Network Checks Edition
+Version: 2.0.2 Stable — Real Network Checks Edition
 Coded by Lucky // Om Patel
 GitHub: https://github.com/lucky-om/CodeAlpha_PhishGuard
 
@@ -23,7 +23,7 @@ from datetime import datetime
 # ─────────────────────────────────────────────
 # CONSTANTS
 # ─────────────────────────────────────────────
-VERSION = "2.0.0"
+VERSION = "2.0.2"
 TIMEOUT = 5  # seconds for network ops
 
 BRANDS = {

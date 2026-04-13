@@ -6,7 +6,9 @@ import App from './App.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { GameProvider } from './context/GameContext.jsx'
 
-const basename = window.location.hostname === 'phishguard.luckyverse.tech' ? '/' : '/CodeAlpha_PhishGuard';
+// Handle GitHub Pages path vs Custom Domain
+const hostname = window.location.hostname;
+const basename = hostname === 'phishguard.luckyverse.tech' ? '/' : (hostname.includes('github.io') ? '/CodeAlpha_PhishGuard' : '/');
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
