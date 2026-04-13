@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8">
-    <title>PhishGuard | Secure Redirect</title>
+    <title>PhishGuard | Redirecting...</title>
     <script type="text/javascript">
-        // Single Page Apps for GitHub Pages
-        // https://github.com/rafgraph/spa-github-pages
-        var l = window.location;
-        
-        // Dynamic detection of path segments to keep
-        // If on custom domain phishguard.luckyverse.tech -> 0
-        // If on lucky-om.github.io/CodeAlpha_PhishGuard -> 1
-        var pathSegmentsToKeep = l.hostname === 'phishguard.luckyverse.tech' ? 0 : 1;
+      // Single Page Apps for GitHub Pages hack 
+      // (c) 2016-2024 Rafael Pedicini, MIT License
+      // https://github.com/rafgraph/spa-github-pages
+      var l = window.location;
+      var repoName = 'CodeAlpha_PhishGuard';
+      
+      // If we are on hostname that includes 'github.io' and NOT at the root domain
+      // then we need to keep 1 path segment (the repo name).
+      // Otherwise (custom domain), we keep 0 segments.
+      var pathSegmentsToKeep = (l.hostname.indexOf('github.io') !== -1 && l.pathname.indexOf('/' + repoName) !== -1) ? 1 : 0;
 
-        l.replace(
-            l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-            l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-            l.pathname.split('/').slice(1 + pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
-            (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-            l.hash
-        );
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+        l.pathname.split('/').slice(1 + pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
     </script>
-</head>
-<body>
-</body>
+  </head>
+  <body>
+  </body>
 </html>
