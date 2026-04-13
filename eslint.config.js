@@ -24,6 +24,8 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Context files intentionally export both provider components and hooks
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
 ])

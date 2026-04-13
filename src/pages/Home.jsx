@@ -1,38 +1,144 @@
-/* coded by lucky */
+/* coded by Lucky */
+import { useState, useEffect, useRef } from 'react';
 import { motion as Motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
-import { ShieldAlert, Terminal, CheckCircle2, Layout, Zap, ArrowRight, ShieldCheck, Shield } from 'lucide-react';
+import { ShieldAlert, Terminal, CheckCircle2, ArrowRight, ShieldCheck, Shield, Zap, TrendingUp, Calendar, AlertTriangle } from 'lucide-react';
 
+// ── Daily Threat Briefing Data ────────────────────────────────────────────────
+const DAILY_THREATS = [
+  {
+    title: 'QR Code Quishing',
+    type: 'Quishing',
+    badge: 'Trending',
+    badgeColor: 'rose',
+    summary: 'Attackers are replacing legitimate QR codes in public spaces (restaurants, parking meters, banks) with malicious ones that redirect to credential harvesting sites.',
+    tip: 'Always type the URL manually or use a QR scanner that shows you the destination before opening.',
+  },
+  {
+    title: 'Adversary-in-the-Middle (AiTM)',
+    type: 'MFA Bypass',
+    badge: 'Critical',
+    badgeColor: 'rose',
+    summary: 'Modern phishing kits intercept MFA codes in real time by sitting between the victim and the real site, rendering SMS-based 2FA obsolete.',
+    tip: 'Use hardware security keys (FIDO2/WebAuthn) instead of SMS or TOTP codes for high-value accounts.',
+  },
+  {
+    title: 'Punycode Homograph Attacks',
+    type: 'Domain Spoofing',
+    badge: 'Emerging',
+    badgeColor: 'yellow',
+    summary: 'Unicode characters that look identical to Latin letters (e.g., Cyrillic "а" vs. Latin "a") are used to create visually indistinguishable fake domains like аpple.com.',
+    tip: 'Enable IDN display in your browser settings to reveal punycode. PhishGuard\'s analyzer detects these automatically.',
+  },
+  {
+    title: 'Brand Impersonation via Free Hosting',
+    type: 'Free Hosting Abuse',
+    badge: 'Common',
+    badgeColor: 'yellow',
+    summary: 'Attackers create phishing pages on .github.io, .netlify.app, and .pages.dev — trusted platforms that bypass many email filters and URL blockers.',
+    tip: 'Check if a link goes to .github.io, .netlify.app, .vercel.app — then verify if you were expecting to visit that exact URL.',
+  },
+  {
+    title: 'Spear Phishing via LinkedIn',
+    type: 'Spear Phishing',
+    badge: 'High Volume',
+    badgeColor: 'orange',
+    summary: 'Attackers harvest professional details from LinkedIn to craft personalized phishing emails impersonating colleagues, HR, or executives (BEC attacks).',
+    tip: 'Verify any unexpected requests for wire transfers, data, or credentials via a separate phone call to the sender.',
+  },
+  {
+    title: 'SMS Smishing Surge',
+    type: 'Smishing',
+    badge: 'Active Alert',
+    badgeColor: 'rose',
+    summary: 'Package delivery scams (DHL, FedEx, India Post) are surging globally. Victims receive fake "delivery failed" SMS messages with shortened malicious URLs.',
+    tip: 'Never click links in SMS messages about deliveries. Go directly to the courier\'s official website and track manually.',
+  },
+  {
+    title: 'Open Redirect Exploitation',
+    type: 'Redirect Chaining',
+    badge: 'Sophisticated',
+    badgeColor: 'yellow',
+    summary: 'Attackers exploit legitimate websites with open redirect vulnerabilities to route victims through trusted domains (e.g., google.com/url?q=evil.com) before landing on phishing pages.',
+    tip: 'If a URL contains parameters like ?url=, ?redirect=, or ?goto=, always inspect the full destination.',
+  },
+];
+
+// ── CountUp Component (Feature H) ────────────────────────────────────────────
+function CountUp({ target, duration = 2000, suffix = '' }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const triggered = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !triggered.current) {
+          triggered.current = true;
+          const steps = Math.max(40, Math.floor(duration / 16));
+          const increment = target / steps;
+          let current = 0;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              setCount(target);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(current));
+            }
+          }, 16);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    const el = ref.current;
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+}
+
+// ── Home Component ─────────────────────────────────────────────────────────────
 export default function Home() {
+  const todayThreat = DAILY_THREATS[new Date().getDay() % DAILY_THREATS.length];
+
   const features = [
     {
       title: 'Phish Anatomy',
-      desc: 'Investigate high-fidelity web & email deconstructions. Identify hidden red-flags used by threat actors.',
+      desc: 'Investigate high-fidelity email and web deconstructions. Identify hidden red-flags used by threat actors across 5 attack vectors.',
       path: '/simulation',
       icon: <ShieldAlert className="w-8 h-8 text-rose-500" />,
-      color: 'rose'
+      color: 'rose',
     },
     {
       title: 'AI Link Analyzer',
-      desc: 'Let our autonomous security agent safely audit suspicious domains in a virtualized sandbox.',
+      desc: 'Deploy an autonomous security agent to safely audit suspicious domains with 18-point heuristic analysis, bulk scanning, and URL decoding.',
       path: '/analyzer',
       icon: <Terminal className="w-8 h-8 text-cyan-500" />,
-      color: 'cyan'
+      color: 'cyan',
     },
     {
       title: 'Security IQ Quiz',
-      desc: 'Challenge your detection skills with randomized attack scenarios and get your security rating.',
+      desc: 'Challenge your threat detection skills with randomized attack scenarios across email, SMS, and web domains. Get your security rating.',
       path: '/quiz',
       icon: <CheckCircle2 className="w-8 h-8 text-emerald-500" />,
-      color: 'emerald'
-    }
+      color: 'emerald',
+    },
   ];
+
+  const badgeColors = {
+    rose: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
+    yellow: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
+    orange: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
+  };
 
   return (
     <div className="space-y-24 py-12">
+
       {/* Hero Section */}
       <section className="relative text-center overflow-hidden py-24 px-6 rounded-[3rem] bg-slate-950 border border-slate-800 shadow-3xl group">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-cyan-500)_0%,_transparent_75%)] opacity-[0.03] animate-pulse"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-cyan-500)_0%,_transparent_75%)] opacity-[0.03] animate-pulse" />
 
         <Motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -42,34 +148,34 @@ export default function Home() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-cyan-950/50 border border-cyan-500/20 text-cyan-500 text-[10px] font-black tracking-[0.2em] uppercase">
             <Zap className="w-3 h-3" />
-            Active Deployment: LUCKY_PHISHGUARD_SECURE
+            Active Deployment: PHISHGUARD_SECURE_v3
           </div>
 
           <h1 className="text-4xl md:text-7xl font-black tracking-tighter text-white leading-tight italic uppercase">
-            PhishGuard : <br />
+            PhishGuard :<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 drop-shadow-2xl">
-              Phishing Detection & Prevention
+              Phishing Detection &amp; Prevention
             </span>
           </h1>
 
           <p className="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed font-medium">
-            Welcome to the PhishGuard Intel Portal. We provide state-of-the-art forensic tools to analyze, detect, and neutralize advanced social engineering threats. Developed by Lucky.
+            Enterprise-grade forensic tools to analyze, detect, and neutralize advanced social engineering threats.
+            18-point URL heuristics, interactive simulations, and a security IQ assessment — all running locally in your browser.
           </p>
+
           <div className="pt-8 flex flex-wrap justify-center gap-6">
             <NavLink to="/analyzer" className="px-10 py-5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest shadow-2xl shadow-cyan-500/30 transition-all flex items-center gap-3 group">
               Start Audit
               <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
             </NavLink>
             <NavLink to="/prevention" className="px-10 py-5 bg-slate-900 hover:bg-slate-800 text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest border-2 border-slate-800 transition-all flex items-center gap-3">
-              <Shield className="w-5 h-5" />
-              Prevention
+              <Shield className="w-5 h-5" /> Prevention
             </NavLink>
           </div>
         </Motion.div>
 
-        {/* Decorative Grid Lines */}
-        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent"></div>
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-48 h-[1px] bg-cyan-500/20"></div>
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent" />
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-48 h-[1px] bg-cyan-500/20" />
       </section>
 
       {/* Feature Grid */}
@@ -98,24 +204,93 @@ export default function Home() {
         ))}
       </section>
 
-      {/* Stats Section */}
-      <section className="p-16 rounded-[3rem] bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-around gap-12 text-center relative overflow-hidden">
-        <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/5 blur-[100px]"></div>
+      {/* Daily Threat Briefing (Feature D) */}
+      <section className="max-w-7xl mx-auto px-4">
+        <Motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="p-10 md:p-16 rounded-[3rem] bg-slate-950 border border-slate-800 shadow-2xl overflow-hidden relative group"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/3 blur-3xl rounded-full" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-rose-500/3 blur-3xl rounded-full" />
+
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+            <div className="lg:col-span-1 space-y-4">
+              <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-cyan-500">
+                <Calendar className="w-3 h-3" /> Daily Threat Briefing
+              </div>
+              <h2 className="text-3xl font-black text-white leading-tight italic uppercase tracking-tighter">
+                Threat of the Day
+              </h2>
+              <p className="text-slate-500 text-sm leading-relaxed">
+                A different emerging phishing technique highlighted every day to keep you current with the evolving threat landscape.
+              </p>
+              <NavLink to="/encyclopedia" className="inline-flex items-center gap-2 text-[10px] font-black text-cyan-500 uppercase tracking-widest hover:gap-3 transition-all">
+                Full Encyclopedia <ArrowRight className="w-3 h-3" />
+              </NavLink>
+            </div>
+
+            <div className="lg:col-span-2 bg-slate-900/70 border border-slate-800 rounded-3xl p-8 space-y-5 backdrop-blur-sm">
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border ${badgeColors[todayThreat.badgeColor]}`}>
+                      {todayThreat.badge}
+                    </span>
+                    <span className="text-[9px] text-slate-600 font-mono uppercase tracking-widest">{todayThreat.type}</span>
+                  </div>
+                  <h3 className="text-xl font-black text-white">{todayThreat.title}</h3>
+                </div>
+                <AlertTriangle className="w-8 h-8 text-yellow-500/50 shrink-0" />
+              </div>
+
+              <p className="text-sm text-slate-400 leading-relaxed">{todayThreat.summary}</p>
+
+              <div className="flex gap-3 items-start p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/15">
+                <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-emerald-500 mb-1">Defense Tip</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">{todayThreat.tip}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Motion.div>
+      </section>
+
+      {/* Stats Section (Feature H — count-up animation) */}
+      <section className="p-16 rounded-[3rem] bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-around gap-12 text-center relative overflow-hidden max-w-7xl mx-auto w-full px-4">
+        <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/5 blur-[100px]" />
         <div className="space-y-2 relative z-10">
-          <div className="text-5xl font-black text-emerald-500 italic">10k+</div>
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Threats Audited</div>
+          <div className="text-5xl font-black text-emerald-500 italic">
+            <CountUp target={18} suffix="+" />
+          </div>
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Detection Checks</div>
         </div>
-        <div className="w-[1px] h-16 bg-slate-200 dark:bg-slate-800 hidden md:block"></div>
+        <div className="w-[1px] h-16 bg-slate-200 dark:bg-slate-800 hidden md:block" />
         <div className="space-y-2 relative z-10">
-          <div className="text-5xl font-black text-cyan-500 italic">ZERO</div>
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Data Leakage</div>
+          <div className="text-5xl font-black text-cyan-500 italic">
+            <CountUp target={20} suffix="+" />
+          </div>
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Brand Patterns</div>
         </div>
-        <div className="w-[1px] h-16 bg-slate-200 dark:bg-slate-800 hidden md:block"></div>
+        <div className="w-[1px] h-16 bg-slate-200 dark:bg-slate-800 hidden md:block" />
         <div className="space-y-2 relative z-10">
-          <div className="text-5xl font-black text-rose-500 italic">100%</div>
+          <div className="text-5xl font-black text-rose-500 italic">
+            <CountUp target={100} suffix="%" />
+          </div>
           <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Secure Sandbox</div>
         </div>
+        <div className="w-[1px] h-16 bg-slate-200 dark:bg-slate-800 hidden md:block" />
+        <div className="space-y-2 relative z-10">
+          <div className="text-5xl font-black text-yellow-500 italic">
+            ZERO
+          </div>
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Data Leakage</div>
+        </div>
       </section>
+
     </div>
   );
 }

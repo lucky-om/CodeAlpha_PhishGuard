@@ -165,7 +165,7 @@ export default function Footer() {
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-emerald-500/5 border border-emerald-500/10">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
-              <span className="text-[9px] font-black text-emerald-500 tracking-widest uppercase italic">Verified Core v2.0.0</span>
+              <span className="text-[9px] font-black text-emerald-500 tracking-widest uppercase italic">Verified Core v3.0.0</span>
             </div>
             <p className="text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-widest">
               All rights reserved &copy; {currentYear} Lucky

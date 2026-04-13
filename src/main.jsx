@@ -6,9 +6,9 @@ import App from './App.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { GameProvider } from './context/GameContext.jsx'
 
-// Handle GitHub Pages path vs Custom Domain
-// Handle GitHub Pages path vs Custom Domain
-const basename = window.location.pathname.startsWith('/CodeAlpha_PhishGuard') ? '/CodeAlpha_PhishGuard' : '/';
+// Custom domain (CNAME = phishguard.luckyverse.tech) → basename is always '/'.
+// If deployed to GitHub Pages subfolder without CNAME, set to '/CodeAlpha_PhishGuard'.
+const basename = window.location.hostname.endsWith('github.io') ? '/CodeAlpha_PhishGuard' : '/';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

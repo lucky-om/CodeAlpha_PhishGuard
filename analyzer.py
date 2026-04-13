@@ -1,7 +1,6 @@
 """
-LUCKY_INTEL_SYSTEM: analyzer.py
-Proprietary PhishGuard Threat Analysis Engine
-Version: 2.0.2 Stable — Real Network Checks Edition
+PhishGuard Threat Analysis Engine v3.0.0
+Command-line URL heuristic scanner — mirrors detectorLogic.js checks.
 Coded by Lucky // Om Patel
 GitHub: https://github.com/lucky-om/CodeAlpha_PhishGuard
 
@@ -9,142 +8,168 @@ USAGE:
   python analyzer.py <domain_or_url>
   python analyzer.py paypal-secure-login.xyz
   python analyzer.py https://google.com
+  python analyzer.py amazon-billing.info --json
 """
 
 import sys
 import re
 import time
+import json
 import socket
 import ssl
 import urllib.request
 import urllib.error
 from datetime import datetime
 
-# ─────────────────────────────────────────────
-# CONSTANTS
-# ─────────────────────────────────────────────
-VERSION = "2.0.2"
-TIMEOUT = 5  # seconds for network ops
+# ─────────────────────────────────────────────────────────────────────────────
+# VERSION & CONSTANTS
+# ─────────────────────────────────────────────────────────────────────────────
+VERSION = "3.0.0"
+TIMEOUT = 5
 
 BRANDS = {
     'microsoft': [r'rnicrosoft', r'micros0ft', r'mircosoft', r'office-365-', r'microsoft-verify', r'ms-security'],
-    'google': [r'g00gle', r'google-verify', r'gmail-security', r'google-account-'],
-    'amazon': [r'amazon-billing', r'amzn-', r'shopplng-amazon', r'amazon-update'],
-    'netflix': [r'netfIix', r'netflix-billing', r'nfx-login', r'netflix-update'],
-    'paypal': [r'paypa1', r'paypa-l', r'paypal-secure', r'paypal-update', r'paypal-billing'],
-    'apple': [r'apple-id-verify', r'icloud-security', r'apple-support-', r'appie'],
-    'facebook': [r'faceb00k', r'facebook-security', r'fb-verify', r'meta-security'],
-    'instagram': [r'instagram-verify', r'insta-gram', r'inst4gram'],
-    'steam': [r'st3am', r'steam-trade', r'steampowered-'],
-    'chase': [r'chase-bank-', r'chase-verify', r'chasebank'],
-    'bank': [r'bank-login', r'secure-banking', r'banking-update'],
+    'google': [r'g00gle', r'google-verify', r'gmail-security', r'google-account-', r'g0ogle'],
+    'amazon': [r'amazon-billing', r'amzn-', r'shopplng-amazon', r'amazon-update', r'arnazon'],
+    'netflix': [r'netfIix', r'netflix-billing', r'nfx-login', r'netflix-update', r'net-flix'],
+    'paypal': [r'paypa1', r'paypa-l', r'paypal-secure', r'paypal-update', r'paypal-billing', r'pay-pal'],
+    'apple': [r'apple-id-verify', r'icloud-security', r'apple-support-', r'appie', r'appl3'],
+    'facebook': [r'faceb00k', r'facebook-security', r'fb-verify', r'meta-security', r'facebok'],
+    'instagram': [r'instagram-verify', r'insta-gram', r'inst4gram', r'1nstagram'],
+    'steam': [r'st3am', r'steam-trade', r'steampowered-', r'steamcommunlty'],
+    'chase': [r'chase-bank-', r'chase-verify', r'chasebank', r'chas3'],
+    'bank': [r'bank-login', r'secure-banking', r'banking-update', r'bank-alert'],
+    'whatsapp': [r'whatsapp-verify', r'whatsap\.', r'whats-app', r'watsapp'],
+    'twitter': [r'tw1tter', r'twitter-verify', r'twltter', r'twtter'],
+    'dhl': [r'dhl-delivery', r'dhl-track', r'dh1-parcel'],
+    'fedex': [r'fedex-delivery', r'fedex-track', r'f3dex'],
+    'hdfc': [r'hdfc-bank', r'hdfcbank-secure', r'hdfc-verify', r'hdfcnet'],
+    'icici': [r'icici-bank', r'icicibanklogin', r'icici-verify'],
+    'sbi': [r'sbi-bank', r'sbibank-secure', r'onlinesbi-verify', r'sbi-online'],
+    'paytm': [r'paytm-verify', r'paytm-kyc', r'paytm-update'],
+    'walmart': [r'walrnart', r'walmart-billing', r'wal-mart-'],
 }
 
-HIGH_RISK_TLDS = ['.zip', '.mov', '.top', '.xyz', '.work', '.security',
-                  '.info', '.pw', '.tk', '.ml', '.ga', '.cf', '.gq',
-                  '.click', '.link', '.live', '.online']
+HIGH_RISK_TLDS = [
+    '.zip', '.mov', '.top', '.xyz', '.work', '.security',
+    '.info', '.pw', '.tk', '.ml', '.ga', '.cf', '.gq',
+    '.click', '.link', '.live', '.online', '.ru', '.cn',
+    '.cc', '.ws', '.biz', '.icu', '.fun', '.vip',
+]
 
-URL_SHORTENERS = ['bit.ly', 't.co', 'tinyurl.com', 'ow.ly', 'goo.gl',
-                  'rebrand.ly', 'buff.ly', 'is.gd', 'rb.gy', 'short.io']
+URL_SHORTENERS = [
+    'bit.ly', 't.co', 'tinyurl.com', 'ow.ly', 'goo.gl',
+    'rebrand.ly', 'buff.ly', 'is.gd', 'rb.gy', 'short.io',
+    'cutt.ly', 'shorte.st', 'tiny.cc', 'bl.ink', 't.ly',
+]
+
+FREE_HOSTING = [
+    '.github.io', '.netlify.app', '.glitch.me', '.pages.dev',
+    '.vercel.app', '.weebly.com', '.000webhostapp.com',
+    '.web.app', '.firebaseapp.com', '.surge.sh',
+]
+
+PHISHING_PATH_KEYWORDS = [
+    '/login', '/signin', '/verify', '/secure', '/update',
+    '/confirm', '/account', '/billing', '/webscr', '/validate',
+    '/auth', '/credential', '/recover', '/reset-password',
+]
+
+SUSPICIOUS_SUBDOMAINS = [
+    'login.', 'secure.', 'verify.', 'account.', 'update.',
+    'signin.', 'billing.', 'auth.', 'portal.', 'webmail.',
+    'support.', 'helpdesk.',
+]
+
+REDIRECT_PARAMS = [
+    'redirect', 'url', 'goto', 'next', 'return',
+    'callback', 'dest', 'destination', 'continue',
+]
+
+KNOWN_BRAND_DOMAINS = ['google', 'microsoft', 'amazon', 'apple', 'facebook', 'github', 'paypal', 'netflix', 'twitter']
 
 
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 # DISPLAY HELPERS
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 def print_header():
-    print("\n" + "═" * 60)
+    print("\n" + "═" * 65)
     print(f"  ⚡ PHISHGUARD THREAT ANALYSIS ENGINE v{VERSION}")
-    print(f"  By Lucky (Om Patel) | github.com/lucky-om")
-    print("═" * 60)
+    print(f"  By Lucky (Om Patel) | github.com/lucky-om/CodeAlpha_PhishGuard")
+    print("═" * 65)
 
 def print_section(title):
-    print(f"\n{'─' * 60}")
+    print(f"\n{'─' * 65}")
     print(f"  [PHASE] {title}")
-    print('─' * 60)
+    print('─' * 65)
 
-def log(symbol, msg, color_code=''):
-    RESET = '\033[0m'
-    print(f"  {color_code}{symbol} {msg}{RESET if color_code else ''}")
+def log(symbol, msg, code=''):
+    R = '\033[0m'
+    print(f"  {code}{symbol} {msg}{R if code else ''}")
 
-def log_ok(msg):     log('✓', msg, '\033[92m')   # green
-def log_warn(msg):   log('⚠', msg, '\033[93m')   # yellow
-def log_crit(msg):   log('✗', msg, '\033[91m')   # red
-def log_info(msg):   log('·', msg, '\033[96m')   # cyan
-def log_data(msg):   log('→', msg, '\033[90m')   # gray
+def log_ok(msg):   log('✓', msg, '\033[92m')
+def log_warn(msg): log('⚠', msg, '\033[93m')
+def log_crit(msg): log('✗', msg, '\033[91m')
+def log_info(msg): log('·', msg, '\033[96m')
 
 
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 # URL NORMALIZATION
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 def normalize(raw):
-    """Strips protocol and paths, returns clean domain + full lowercase url."""
     raw = raw.strip()
-    # strip protocol
-    domain = re.sub(r'^https?://', '', raw).split('/')[0].split('?')[0].split('#')[0]
-    return domain.lower(), raw.lower()
-
+    clean = re.sub(r'^https?://', '', raw).lower()
+    domain = clean.split('/')[0].split('?')[0].split('#')[0]
+    path = clean[len(domain):]
+    query = raw[raw.index('?')+1:] if '?' in raw else ''
+    return domain, path, query, clean
 
 def validate_input(raw):
-    """Rejects obviously invalid inputs."""
-    domain, _ = normalize(raw)
-    pattern = r'^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$'
-    if re.match(pattern, domain):
+    domain, _, _, _ = normalize(raw)
+    if re.match(r'^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$', domain):
         return domain
-    # try full url pattern
     if re.match(r'^https?://', raw):
-        domain_from_url = re.sub(r'^https?://', '', raw).split('/')[0]
-        if re.match(pattern, domain_from_url):
-            return domain_from_url.lower()
+        d = re.sub(r'^https?://', '', raw).split('/')[0]
+        if re.match(r'^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$', d):
+            return d.lower()
     return None
 
 
-# ─────────────────────────────────────────────
-# REAL NETWORK CHECKS
-# ─────────────────────────────────────────────
-
-def check_dns_resolution(domain):
-    """Tries to resolve the domain via DNS."""
+# ─────────────────────────────────────────────────────────────────────────────
+# NETWORK CHECKS
+# ─────────────────────────────────────────────────────────────────────────────
+def check_dns(domain):
     try:
-        addrs = socket.getaddrinfo(domain, None, socket.AF_INET)
-        ip = addrs[0][4][0]
-        log_ok(f"DNS Resolution: {domain} → {ip}")
+        ip = socket.getaddrinfo(domain, None, socket.AF_INET)[0][4][0]
+        log_ok(f"DNS: {domain} → {ip}")
         return ip
     except socket.gaierror:
-        log_warn(f"DNS Resolution: FAILED (domain does not resolve)")
+        log_warn("DNS: FAILED — domain does not resolve")
         return None
     except Exception as e:
-        log_warn(f"DNS Resolution: Error — {e}")
+        log_warn(f"DNS: Error — {e}")
         return None
 
-
-def check_ssl_certificate(domain):
-    """Validates SSL/TLS certificate and extracts issuer info."""
+def check_ssl(domain):
     try:
         ctx = ssl.create_default_context()
-        conn = ctx.wrap_socket(
-            socket.create_connection((domain, 443), timeout=TIMEOUT),
-            server_hostname=domain
-        )
+        conn = ctx.wrap_socket(socket.create_connection((domain, 443), timeout=TIMEOUT), server_hostname=domain)
         cert = conn.getpeercert()
         conn.close()
-
         issuer = dict(x[0] for x in cert.get('issuer', []))
         subject = dict(x[0] for x in cert.get('subject', []))
-        expire_raw = cert.get('notAfter', '')
-        
         org = issuer.get('organizationName', 'Unknown')
         cn = subject.get('commonName', domain)
         log_ok(f"SSL Valid | Issuer: {org} | CN: {cn}")
-        
+        expire_raw = cert.get('notAfter', '')
         if expire_raw:
             try:
                 expire = datetime.strptime(expire_raw, '%b %d %H:%M:%S %Y %Z')
-                days_left = (expire - datetime.utcnow()).days
-                if days_left < 14:
-                    log_warn(f"SSL expires in {days_left} days — possible throwaway cert!")
+                days = (expire - datetime.utcnow()).days
+                if days < 14:
+                    log_warn(f"SSL expires in {days} days — possible throwaway cert")
                     return False, org
-                else:
-                    log_info(f"SSL expires: {expire.strftime('%Y-%m-%d')} ({days_left} days)")
+                log_info(f"SSL expires {expire.strftime('%Y-%m-%d')} ({days} days)")
             except ValueError:
                 pass
         return True, org
@@ -152,32 +177,25 @@ def check_ssl_certificate(domain):
         log_crit(f"SSL ERROR: {e}")
         return False, None
     except (socket.timeout, ConnectionRefusedError):
-        log_warn(f"SSL: Port 443 unreachable (no HTTPS)")
+        log_warn("SSL: Port 443 unreachable")
         return False, None
     except Exception:
-        log_warn(f"SSL: Unable to verify certificate")
+        log_warn("SSL: Unable to verify certificate")
         return False, None
 
-
-def check_http_response(domain, raw_url):
-    """Checks HTTP response code and detects redirects."""
-    # Build a URL to check
-    test_url = raw_url if raw_url.startswith('http') else f'https://{domain}'
+def check_http(domain, raw_url):
+    url = raw_url if raw_url.startswith('http') else f'https://{domain}'
     try:
-        req = urllib.request.Request(
-            test_url,
-            headers={'User-Agent': 'Mozilla/5.0 (PhishGuard Security Scanner v2.0)'}
-        )
+        req = urllib.request.Request(url, headers={'User-Agent': f'PhishGuard-Scanner/{VERSION}'})
         with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
-            final_url = resp.geturl()
+            final = resp.geturl()
             code = resp.status
-            log_ok(f"HTTP {code} | Final URL: {final_url}")
-            if final_url.lower() != test_url.lower():
-                redirect_domain = re.sub(r'^https?://', '', final_url).split('/')[0]
-                if redirect_domain.lower() != domain:
-                    log_warn(f"Redirect detected → {redirect_domain}")
-                    return code, final_url
-            return code, final_url
+            log_ok(f"HTTP {code} | Final: {final}")
+            if final.lower() != url.lower():
+                redir = re.sub(r'^https?://', '', final).split('/')[0]
+                if redir.lower() != domain:
+                    log_warn(f"Redirect → {redir}")
+            return code, final
     except urllib.error.HTTPError as e:
         log_warn(f"HTTP Error: {e.code} {e.reason}")
         return e.code, None
@@ -188,13 +206,7 @@ def check_http_response(domain, raw_url):
         log_warn(f"HTTP check failed: {e}")
         return None, None
 
-
-def check_whois_age(domain):
-    """
-    Lightweight WHOIS-like check: newly registered domains are high risk.
-    Uses IANA WHOIS over port 443 redirect (text-based TCP 43).
-    NOTE: Real production WHOIS needs 'python-whois' library.
-    """
+def check_whois(domain):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(TIMEOUT)
@@ -210,196 +222,259 @@ def check_whois_age(domain):
         sock.close()
         response = raw.decode('utf-8', errors='ignore').lower()
         if 'refer:' in response:
-            log_info(f"WHOIS TLD registered — IANA record exists")
+            log_info("WHOIS TLD: IANA record exists")
         else:
-            log_warn(f"WHOIS TLD: Unverified or obscure registry")
+            log_warn("WHOIS TLD: Unverified or obscure registry")
     except Exception:
         log_info("WHOIS: Skipped (network timeout)")
 
 
-# ─────────────────────────────────────────────
-# HEURISTIC ANALYSIS
-# ─────────────────────────────────────────────
-
-def heuristic_analysis(domain, full_url):
-    """
-    Runs all static heuristic checks and returns (risk_score, findings[]).
-    No network calls — pure pattern matching.
-    """
-    risk_score = 0
+# ─────────────────────────────────────────────────────────────────────────────
+# HEURISTIC ENGINE (mirrors detectorLogic.js — 18 checks)
+# ─────────────────────────────────────────────────────────────────────────────
+def heuristic_analysis(domain, raw):
+    domain, path, query, clean = normalize(raw)
+    risk = 0
     findings = []
-    clean = domain.lower()
+    base = '.'.join(domain.split('.')[:-1])
 
-    # 1. Brand impersonation check
+    # 1. Dangerous URI scheme
+    if re.match(r'^(javascript:|data:|vbscript:)', raw, re.I):
+        findings.append(('CRITICAL', 'Dangerous URI scheme (javascript:/data:/vbscript:) — code injection vector'))
+        return 10, findings
+
+    # 2. Brand impersonation
     for brand, patterns in BRANDS.items():
         for pat in patterns:
             if re.search(pat, clean):
-                risk_score += 4
-                findings.append(('CRITICAL', f"Brand impersonation: matches '{brand.upper()}' threat cluster (pattern: {pat})"))
+                risk += 4
+                findings.append(('CRITICAL', f'Brand impersonation: matches {brand.upper()} phishing cluster (pattern: {pat})'))
                 break
 
-    # 2. High-risk TLD check
+    # 3. High-risk TLD
     for tld in HIGH_RISK_TLDS:
-        if clean.endswith(tld) or f'{tld}/' in clean:
-            risk_score += 3
-            findings.append(('WARNING', f"High-risk TLD: '{tld}' commonly used in malicious registrations"))
+        if domain.endswith(tld) or f'{tld}/' in clean:
+            risk += 3
+            findings.append(('WARNING', f'High-risk TLD: "{tld}" commonly used in malicious registrations'))
             break
 
-    # 3. URL shortener detection
-    for shortener in URL_SHORTENERS:
-        if clean == shortener or clean.startswith(shortener + '/'):
-            risk_score += 4
-            findings.append(('CRITICAL', f"URL shortener detected ('{shortener}') — hides real destination"))
+    # 4. URL shortener (check full raw input)
+    for s in URL_SHORTENERS:
+        if domain == s or s + '/' in raw.lower():
+            risk += 4
+            findings.append(('CRITICAL', f'URL shortener detected ({s}) — hides real destination'))
             break
 
-    # 4. IP address in URL
-    ip_pattern = r'^\d{1,3}(\.\d{1,3}){3}$'
-    if re.match(ip_pattern, clean.split('/')[0]):
-        risk_score += 5
-        findings.append(('CRITICAL', 'IP address used as domain — legitimate sites use domain names, not raw IPs'))
+    # 5. IP address as domain
+    if re.match(r'^\d{1,3}(\.\d{1,3}){3}$', domain.split('/')[0]):
+        risk += 5
+        findings.append(('CRITICAL', 'IP address used as domain — not used by legitimate services'))
 
-    # 5. Credential theft indicator — @ symbol
-    if '@' in full_url:
-        risk_score += 5
-        findings.append(('CRITICAL', '"@" symbol in URL — everything before "@" is ignored by browser, hides real destination'))
+    # 6. "@" symbol
+    if '@' in clean:
+        risk += 5
+        findings.append(('CRITICAL', '"@" in URL — real destination hidden after the "@" symbol'))
 
-    # 6. Excessive subdomains (tunneling risk)
-    dot_count = clean.split('/')[0].count('.')
-    if dot_count >= 4:
-        risk_score += 2
-        findings.append(('WARNING', f'Excessive subdomain depth ({dot_count} levels) — indicates DNS tunneling or masking'))
+    # 7. Excessive subdomains
+    dots = domain.count('.')
+    if dots >= 3:
+        risk += 2
+        findings.append(('WARNING', f'Excessive subdomain depth ({dots} levels)'))
 
-    # 7. Excessive hyphens (typosquatting pattern)
-    hyphen_count = clean.split('/')[0].count('-')
-    if hyphen_count >= 3:
-        risk_score += 2
-        findings.append(('WARNING', f'{hyphen_count} hyphens in domain — common pattern in fake brand domains (e.g., secure-update-paypal-login.com)'))
+    # 8. Excessive hyphens
+    hyphens = domain.count('-')
+    if hyphens >= 3:
+        risk += 2
+        findings.append(('WARNING', f'{hyphens} hyphens in domain — typosquatting pattern'))
 
-    # 8. Port number in URL (unusual port for standard service)
-    port_match = re.search(r':(\d{2,5})', clean)
-    if port_match:
-        port_num = int(port_match.group(1))
-        if port_num not in (80, 443, 8080, 8443):
-            risk_score += 3
-            findings.append(('CRITICAL', f'Unusual port {port_num} in URL — may indicate C2 server or evasion'))
+    # 9. Non-standard port
+    port_m = re.search(r':(\d{2,5})$', domain)
+    if port_m and int(port_m.group(1)) not in (80, 443, 8080, 8443):
+        risk += 3
+        findings.append(('CRITICAL', f'Non-standard port {port_m.group(1)} — suggests rogue server'))
 
-    # 9. Long domain heuristic (DGA — Domain Generation Algorithm)
-    base_domain = clean.split('/')[0]
-    base_no_tld = '.'.join(base_domain.split('.')[:-1])
-    if len(base_no_tld) > 30:
-        risk_score += 2
-        findings.append(('WARNING', f'Abnormally long domain ({len(base_no_tld)} chars) — possible DGA or obfuscation'))
+    # 10. HTTP (no TLS)
+    if raw.startswith('http://'):
+        risk += 2
+        findings.append(('WARNING', 'Insecure HTTP — no encryption, data transmitted in plaintext'))
 
-    # 10. Number substitution (leetspeak)
-    if re.search(r'[a-z][0-9][a-z]', base_no_tld):
-        risk_score += 2
-        findings.append(('WARNING', 'Number-for-letter substitution detected (e.g., "0" for "o", "1" for "l") — visual deception'))
+    # 11. Leetspeak
+    if re.search(r'[a-z][0-9][a-z]', base):
+        risk += 2
+        findings.append(('WARNING', 'Leetspeak number substitution detected (e.g., paypa1, g00gle)'))
 
-    # 11. Shannon entropy (random character strings — malware C2 domains)
-    unique_chars = len(set(base_no_tld.replace('.', '').replace('-', '')))
-    entropy = unique_chars / max(len(base_no_tld), 1)
-    if entropy > 0.82 and len(base_no_tld) > 14:
-        risk_score += 2
-        findings.append(('WARNING', f'High entropy ratio ({entropy:.2f}) — domain looks algorithmically generated'))
+    # 12. Long domain (DGA)
+    if len(base) > 30:
+        risk += 2
+        findings.append(('WARNING', f'Abnormally long domain ({len(base)} chars) — possible DGA'))
 
-    return risk_score, findings
+    # 13. Shannon entropy
+    clean_base = re.sub(r'[-_.]', '', base)
+    if len(clean_base) > 15:
+        entropy = len(set(clean_base)) / len(clean_base)
+        if entropy > 0.80:
+            risk += 2
+            findings.append(('WARNING', f'High entropy ratio ({entropy:.2f}) — domain looks algorithmically generated'))
+
+    # 14. NEW: Punycode / IDN homograph
+    if domain.startswith('xn--') or '.xn--' in domain:
+        risk += 4
+        findings.append(('CRITICAL', 'Punycode/IDN homograph — uses Unicode lookalike characters'))
+
+    # 15. NEW: Phishing keywords in path
+    for kw in PHISHING_PATH_KEYWORDS:
+        if kw in path:
+            risk += 2
+            findings.append(('WARNING', f'Phishing keyword in path: "{kw}"'))
+            break
+
+    # 16. NEW: Suspicious subdomain (not on known brand domain)
+    is_known = any(domain.endswith(f'.{b}.com') or domain.endswith(f'.{b}.net') for b in KNOWN_BRAND_DOMAINS)
+    if not is_known:
+        for sub in SUSPICIOUS_SUBDOMAINS:
+            if domain.startswith(sub):
+                risk += 2
+                findings.append(('WARNING', f'Suspicious subdomain "{sub.rstrip(".")}" on unrelated domain'))
+                break
+
+    # 17. NEW: Mixed TLD abuse (brand.com.xyz)
+    if re.search(r'\.(com|net|org|co|io)\.[a-z]{2,10}$', domain):
+        risk += 3
+        findings.append(('CRITICAL', 'Mixed TLD abuse — e.g., "paypal.com.xyz" hides malicious TLD at the end'))
+
+    # 18. NEW: Open redirect params
+    ql = query.lower()
+    for param in REDIRECT_PARAMS:
+        if f'{param}=' in ql:
+            risk += 2
+            findings.append(('WARNING', f'Open redirect parameter "?{param}=" detected'))
+            break
+
+    # 19. NEW: Free hosting abuse
+    for host in FREE_HOSTING:
+        if domain.endswith(host):
+            risk += 2
+            findings.append(('WARNING', f'Free hosting platform ({host}) — frequently abused for phishing'))
+            break
+
+    return min(risk, 10), findings
 
 
-# ─────────────────────────────────────────────
-# REPORT PRINTER
-# ─────────────────────────────────────────────
-
-def print_final_report(domain, risk_score, findings, dns_ip, ssl_valid):
+# ─────────────────────────────────────────────────────────────────────────────
+# REPORT
+# ─────────────────────────────────────────────────────────────────────────────
+def print_report(domain, score, findings, dns_ip, ssl_valid):
     print_section("FINAL THREAT ASSESSMENT REPORT")
-    print(f"\n  Target: {domain}")
-    print(f"  DNS: {'✓ Resolved to ' + dns_ip if dns_ip else '✗ Unresolvable'}")
-    print(f"  SSL: {'✓ Valid Certificate' if ssl_valid else '✗ Invalid / Missing'}")
+    print(f"\n  Target      : {domain}")
+    print(f"  DNS         : {'✓ Resolved → ' + dns_ip if dns_ip else '✗ Unresolvable (newly registered?)'}")
+    print(f"  SSL/TLS     : {'✓ Valid Certificate' if ssl_valid else '✗ Invalid or Missing'}")
     print()
 
     if not findings:
-        print("  ┌─────────────────────────────────────────────┐")
-        print("  │  STATUS: PASS — No threats identified       │")
-        print("  │  RISK SCORE: 0/10  |  THREAT: NEGLIGIBLE   │")
-        print("  └─────────────────────────────────────────────┘")
+        print("  ┌──────────────────────────────────────────────────────┐")
+        print("  │  STATUS: PASS — No heuristic threats identified      │")
+        print("  │  RISK SCORE: 0/10  |  THREAT LEVEL: NEGLIGIBLE       │")
+        print("  └──────────────────────────────────────────────────────┘")
     else:
-        capped = min(risk_score, 10)
-        level = 'CRITICAL 🔴' if capped >= 7 else 'HIGH ⚠️' if capped >= 4 else 'LOW 🟡'
-        print(f"  RISK SCORE : {capped}/10")
-        print(f"  THREAT LVL : {level}")
-        print(f"  FINDINGS   : {len(findings)} anomaly(ies)\n")
-        for severity, msg in findings:
-            prefix = '  [✗]' if severity == 'CRITICAL' else '  [⚠]'
+        level = 'CRITICAL 🔴' if score >= 7 else 'HIGH ⚠️' if score >= 4 else 'LOW 🟡'
+        print(f"  RISK SCORE  : {score}/10")
+        print(f"  THREAT LVL  : {level}")
+        print(f"  FINDINGS    : {len(findings)} anomaly(ies)\n")
+        for sev, msg in findings:
+            prefix = '  [✗]' if sev == 'CRITICAL' else '  [⚠]'
             print(f"{prefix} {msg}")
 
-    print(f"\n{'═' * 60}")
-    print("  Audit sealed by PhishGuard v2.0.0 | Coded by Lucky")
-    print(f"{'═' * 60}\n")
+    print(f"\n{'═' * 65}")
+    print(f"  PhishGuard v{VERSION} | Coded by Lucky | phishguard.luckyverse.tech")
+    print(f"{'═' * 65}\n")
+
+def print_json(domain, score, findings, dns_ip, ssl_valid):
+    level = 'High' if score >= 7 else 'Medium' if score >= 4 else 'Low'
+    out = {
+        'engine': f'PhishGuard v{VERSION}',
+        'target': domain,
+        'riskScore': score,
+        'riskLevel': level,
+        'dns': dns_ip,
+        'sslValid': ssl_valid,
+        'findings': [{'severity': s, 'message': m} for s, m in findings],
+    }
+    print(json.dumps(out, indent=2))
 
 
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 # MAIN
-# ─────────────────────────────────────────────
-
-def analyze(raw_input):
-    print_header()
+# ─────────────────────────────────────────────────────────────────────────────
+def analyze(raw_input, json_mode=False):
+    if not json_mode:
+        print_header()
 
     domain = validate_input(raw_input)
     if not domain:
-        print("\n  [FATAL] Invalid input. Provide a valid domain or URL.")
-        print("  Example: python analyzer.py paypal-secure-login.xyz\n")
+        if json_mode:
+            print(json.dumps({'error': 'Invalid input', 'target': raw_input}))
+        else:
+            print("\n  [FATAL] Invalid input. Provide a valid domain or URL.")
+            print(f"  Example: python analyzer.py paypal-secure-login.xyz\n")
         return
 
-    log_info(f"Target ingress: {domain}")
-    time.sleep(0.2)
-
-    # Phase 1: Heuristics (offline — always fast)
-    print_section("HEURISTIC ANALYSIS (Offline)")
-    risk_score, findings = heuristic_analysis(domain, raw_input)
-    
-    if not findings:
-        log_ok("No heuristic anomalies detected.")
-    else:
-        for sev, msg in findings:
-            if sev == 'CRITICAL':
-                log_crit(msg)
-            else:
-                log_warn(msg)
-
-    # Phase 2: Real network checks (online)
-    print_section("LIVE NETWORK INSPECTION")
-
-    dns_ip = check_dns_resolution(domain)
-    time.sleep(0.3)
-
-    ssl_valid = False
-    ssl_org = None
-    if dns_ip:
-        ssl_valid, ssl_org = check_ssl_certificate(domain)
-        time.sleep(0.3)
-        check_http_response(domain, raw_input)
+    if not json_mode:
+        log_info(f"Target ingress: {domain}")
         time.sleep(0.2)
+        print_section("HEURISTIC ANALYSIS (Offline — 18 Checks)")
 
-    check_whois_age(domain)
+    score, findings = heuristic_analysis(domain, raw_input)
 
-    # Final SSL scoring
-    if not ssl_valid:
-        risk_score += 2
-        findings.append(('WARNING', 'Missing or invalid SSL certificate — high risk for credential theft'))
+    if not json_mode:
+        if not findings:
+            log_ok("No heuristic anomalies detected.")
+        else:
+            for sev, msg in findings:
+                if sev == 'CRITICAL':
+                    log_crit(msg)
+                else:
+                    log_warn(msg)
 
-    if not dns_ip:
-        risk_score += 1
-        findings.append(('WARNING', 'Domain does not resolve — may be newly registered for phishing campaign'))
+        print_section("LIVE NETWORK INSPECTION")
 
-    print_final_report(domain, risk_score, findings, dns_ip, ssl_valid)
+    dns_ip = check_dns(domain) if not json_mode else None
+    ssl_valid = False
 
+    if not json_mode:
+        time.sleep(0.2)
+        if dns_ip:
+            ssl_valid, _ = check_ssl(domain)
+            time.sleep(0.2)
+            check_http(domain, raw_input)
+            time.sleep(0.2)
+        check_whois(domain)
 
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        analyze(sys.argv[1])
+        if not ssl_valid:
+            score = min(score + 2, 10)
+            findings.append(('WARNING', 'Missing/invalid SSL — high risk for credential interception'))
+        if not dns_ip:
+            score = min(score + 1, 10)
+            findings.append(('WARNING', 'Domain does not resolve — possibly newly registered for phishing'))
+
+        print_report(domain, score, findings, dns_ip, ssl_valid)
     else:
-        print("\n  [PhishGuard Analyzer v2.0.0] — Coded by Lucky")
-        print("  USAGE: python analyzer.py <domain_or_url>")
+        print_json(domain, score, findings, dns_ip, ssl_valid)
+
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    if not args:
+        print(f"\n  PhishGuard Analyzer v{VERSION} — Coded by Lucky")
+        print("  USAGE: python analyzer.py <domain_or_url> [--json]")
         print("  EXAMPLES:")
         print("    python analyzer.py paypal-secure-login.xyz")
         print("    python analyzer.py https://amazon-billing-update.info/verify")
-        print("    python analyzer.py google.com\n")
+        print("    python analyzer.py google.com --json\n")
+        sys.exit(0)
+
+    json_mode = '--json' in args
+    target = next((a for a in args if not a.startswith('--')), None)
+    if target:
+        analyze(target, json_mode=json_mode)
+    else:
+        print("  [ERROR] No URL provided.")

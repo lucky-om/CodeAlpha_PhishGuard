@@ -1,8 +1,9 @@
 {
   "name": "PhishGuard",
   "private": true,
-  "version": "2.0.2",
+  "version": "3.0.0",
   "type": "module",
+  "homepage": "https://phishguard.luckyverse.tech",
   "author": "Lucky",
   "description": "Premium Phishing Awareness & Security Platform",
   "scripts": {

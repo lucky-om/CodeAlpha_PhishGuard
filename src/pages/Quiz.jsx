@@ -25,7 +25,7 @@ export default function Quiz() {
 
       <div className="text-center pt-10">
         <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-          Secured Assessment Module // Coded by Lucky
+          PhishGuard Security Assessment Module v3.0.0
         </p>
       </div>
     </Motion.div>
