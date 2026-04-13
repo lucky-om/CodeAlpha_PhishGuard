@@ -4,9 +4,8 @@ const GameContext = createContext();
 
 export function GameProvider({ children }) {
   const [score, setScore] = useState(0);
-  const [progress, setProgress] = useState(0); // 0 to 100 percentage
+  const [progress, setProgress] = useState(0);
   
-  // Track unlocks/completion of sections
   const [completedSections, setCompletedSections] = useState({
     gallery: false,
     visualizer: false,
@@ -22,7 +21,7 @@ export function GameProvider({ children }) {
     if (!completedSections[section]) {
       setCompletedSections(prev => ({ ...prev, [section]: true }));
       addScore(points);
-      setProgress(prev => Math.min(prev + 25, 100)); // Roughly 4 main sections
+      setProgress(prev => Math.min(prev + 25, 100));
     }
   };
 

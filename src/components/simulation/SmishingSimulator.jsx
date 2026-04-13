@@ -109,8 +109,8 @@ const smishScenarios = [
 ];
 
 const colorMap = {
-  rose:    { beacon: 'bg-rose-600 shadow-rose-500/50',    ring: 'border-rose-500',  bg: 'bg-rose-500/10',   text: 'text-rose-600 dark:text-rose-400',   badge: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
-  amber:   { beacon: 'bg-amber-500 shadow-amber-500/50',  ring: 'border-amber-500', bg: 'bg-amber-500/10',  text: 'text-amber-600 dark:text-amber-400',  badge: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
+  rose: { beacon: 'bg-rose-600 shadow-rose-500/50', ring: 'border-rose-500', bg: 'bg-rose-500/10', text: 'text-rose-600 dark:text-rose-400', badge: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
+  amber: { beacon: 'bg-amber-500 shadow-amber-500/50', ring: 'border-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-600 dark:text-amber-400', badge: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
   emerald: { beacon: 'bg-emerald-600 shadow-emerald-500/50', ring: 'border-emerald-500', bg: 'bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
 };
 

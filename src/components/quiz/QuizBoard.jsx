@@ -1,23 +1,18 @@
-/* coded by lucky */
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { getShuffledQuestions } from '../../utils/quizData';
 import { CheckCircle2, XCircle, ChevronRight, Award, ShieldCheck } from 'lucide-react';
 import { useGame } from '../../context/GameContext';
 
 export default function QuizBoard() {
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState(() => getShuffledQuestions());
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [scoreCount, setScoreCount] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
-  
+
   const { markSectionComplete } = useGame();
-
-  useEffect(() => {
-    setQuestions(getShuffledQuestions());
-  }, []);
-
   const handleOptionSelect = (index) => {
     if (isAnswered) return;
     
@@ -37,7 +32,6 @@ export default function QuizBoard() {
       setIsAnswered(false);
     } else {
       setQuizFinished(true);
-      // Determine points out of 50 based on accuracy
       const finalScorePercentage = scoreCount / questions.length;
       const pointsToAward = Math.floor(finalScorePercentage * 50);
       markSectionComplete('quiz', pointsToAward);
@@ -93,7 +87,6 @@ export default function QuizBoard() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      {/* Progress */}
       <div className="flex justify-between items-center mb-6 text-sm font-mono">
         <div className="flex items-center gap-4">
            <span className="text-slate-500">Question {currentIndex + 1} of {questions.length}</span>

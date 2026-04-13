@@ -1,9 +1,4 @@
-/* WebsiteAnatomy.jsx — Phishing Landing Page Forensic Simulator
-   Renders high-fidelity browser mockups of real-world phishing landing pages.
-   Interactive numbered beacons overlay the page; clicking one highlights
-   the corresponding card in the left sidebar and expands the forensic explanation.
-   Coded by Lucky | Om Patel */
-
+// CODED BY LUCKY
 import { useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import {
@@ -11,10 +6,6 @@ import {
   Eye, Monitor, CreditCard, X, MousePointer2
 } from 'lucide-react';
 
-// Each entry defines one phishing scenario:
-//   html     — the fake page content rendered inside the browser mockup
-//   hotspots — beacon positions (% values relative to the mockup container)
-//              and the forensic explanation shown when a beacon is clicked
 const anatomyData = [
   {
     id: 'gpay',
@@ -164,16 +155,13 @@ const anatomyData = [
 
 export default function WebsiteAnatomy() {
   const [activeTab, setActiveTab] = useState(anatomyData[0]);
-
-  // null = no beacon selected; otherwise holds the full hotspot object
   const [activeHotspot, setActiveHotspot] = useState(null);
 
   const handleTabChange = (brand) => {
     setActiveTab(brand);
-    setActiveHotspot(null); // Clear selection when switching scenarios
+    setActiveHotspot(null);
   };
 
-  // Toggle: clicking the active beacon closes it; clicking another opens it
   const toggleHotspot = (spot) => {
     setActiveHotspot(prev => prev?.id === spot.id ? null : spot);
   };
@@ -188,14 +176,13 @@ export default function WebsiteAnatomy() {
             <button
               key={brand.id}
               onClick={() => handleTabChange(brand)}
-              className={`px-6 py-2.5 rounded-xl font-bold transition-all border-2 flex items-center gap-2 text-sm ${
-                activeTab.id === brand.id
+              className={`px-6 py-2.5 rounded-xl font-bold transition-all border-2 flex items-center gap-2 text-sm ${activeTab.id === brand.id
                   ? 'bg-cyan-600 border-cyan-600 text-white shadow-lg shadow-cyan-600/20'
                   : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 hover:border-cyan-500/50'
-              }`}
+                }`}
             >
-              {brand.id === 'gpay'         && <CreditCard className="w-4 h-4" />}
-              {brand.id === 'netflix'       && <Monitor className="w-4 h-4" />}
+              {brand.id === 'gpay' && <CreditCard className="w-4 h-4" />}
+              {brand.id === 'netflix' && <Monitor className="w-4 h-4" />}
               {brand.id === 'google-search' && <Search className="w-4 h-4" />}
               {brand.brand}
             </button>
@@ -228,11 +215,10 @@ export default function WebsiteAnatomy() {
                 <button
                   key={spot.id}
                   onClick={() => toggleHotspot(spot)}
-                  className={`w-full text-left p-5 rounded-2xl border-2 transition-all flex items-start gap-4 ${
-                    isActive
+                  className={`w-full text-left p-5 rounded-2xl border-2 transition-all flex items-start gap-4 ${isActive
                       ? 'bg-rose-500/10 border-rose-500'
                       : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-rose-500/40'
-                  }`}
+                    }`}
                 >
                   {/* Beacon turns cyan when active to match the mockup overlay */}
                   <span className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-black shadow-lg transition-colors ${isActive ? 'bg-cyan-600' : 'bg-rose-600'}`}>

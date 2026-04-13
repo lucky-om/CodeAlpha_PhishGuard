@@ -9,13 +9,14 @@ import Quiz from './pages/Quiz';
 import Prevention from './pages/Prevention';
 import Documentation from './pages/Documentation';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import NotFound from './pages/NotFound';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 
 function App() {
   const location = useLocation();
 
-  // Scroll to top on route change
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
@@ -46,6 +47,7 @@ function App() {
             <Route path="/prevention" element={<Prevention />} />
             <Route path="/documentation" element={<Documentation />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Motion.div>
       </AnimatePresence>

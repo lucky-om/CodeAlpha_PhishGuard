@@ -1,15 +1,8 @@
-/* OTPSimulator.jsx — MFA Interception Simulator
-   Dual-pane educational simulation:
-     Left  — victim's perspective: a fake bank portal that collects OTP digits
-     Right — attacker's perspective: a C2 console that logs each keystroke in real-time
-   Hotspot beacons are step-aware and update as the user progresses through the sim.
-   Coded by Lucky | Om Patel */
-
+// CODED BY LUCKY
 import { useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { Landmark, ShieldAlert, Key, CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';
 
-// Hotspots shown when the victim is on the initial phishing landing page
 const landingHotspots = [
   {
     id: 'otp-brand',
@@ -37,7 +30,6 @@ const landingHotspots = [
   },
 ];
 
-// Hotspots shown when the victim is on the OTP entry step
 const inputHotspots = [
   {
     id: 'otp-2fa-header',
@@ -58,21 +50,14 @@ const inputHotspots = [
 ];
 
 const colorMap = {
-  rose:  { dot: 'bg-rose-600 shadow-rose-500/60',    ring: 'border-rose-500',  bg: 'bg-rose-500/10',  text: 'text-rose-500' },
-  amber: { dot: 'bg-amber-500 shadow-amber-400/60',  ring: 'border-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-500' },
+  rose: { dot: 'bg-rose-600 shadow-rose-500/60', ring: 'border-rose-500', bg: 'bg-rose-500/10', text: 'text-rose-500' },
+  amber: { dot: 'bg-amber-500 shadow-amber-400/60', ring: 'border-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-500' },
 };
 
 export default function OTPSimulator() {
-  // Three sequential steps: landing page → OTP entry → post-capture reveal
   const [step, setStep] = useState('landing');
-
-  // Individual OTP digit values — array of 6 single chars
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-
-  // Log entries shown in the attacker's C2 console panel
   const [attackerConsole, setAttackerConsole] = useState([]);
-
-  // Currently expanded hotspot card (null = none expanded)
   const [activeHotspot, setActiveHotspot] = useState(null);
 
   const addAttackerLog = (msg) => {
@@ -120,10 +105,7 @@ export default function OTPSimulator() {
     setActiveHotspot(null);
   };
 
-  // Toggle: same beacon closes; different beacon opens
   const toggleHotspot = (spot) => setActiveHotspot(prev => prev?.id === spot.id ? null : spot);
-
-  // Hotspot set changes based on the current simulation step
   const currentHotspots = step === 'landing' ? landingHotspots : step === 'input' ? inputHotspots : [];
 
   return (
@@ -279,11 +261,10 @@ export default function OTPSimulator() {
               {attackerConsole.map((log, i) => (
                 <Motion.div key={i} initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="flex gap-3 border-l border-slate-900 pl-3">
                   <span className="text-slate-700 shrink-0">{log.time}</span>
-                  <span className={`leading-relaxed ${
-                    log.msg.includes('[CRITICAL]') ? 'text-rose-500 font-black italic' :
-                    log.msg.includes('[DATA]')     ? 'text-cyan-400 font-bold' :
-                    'text-slate-500'
-                  }`}>
+                  <span className={`leading-relaxed ${log.msg.includes('[CRITICAL]') ? 'text-rose-500 font-black italic' :
+                      log.msg.includes('[DATA]') ? 'text-cyan-400 font-bold' :
+                        'text-slate-500'
+                    }`}>
                     {log.msg}
                   </span>
                 </Motion.div>
@@ -302,7 +283,7 @@ export default function OTPSimulator() {
             <h4 className="text-xl font-black mb-5 uppercase tracking-tighter text-slate-900 dark:text-white italic underline decoration-rose-500/50 underline-offset-8">Attack Chain Breakdown</h4>
             <ul className="space-y-5 text-sm">
               {[
-                { title: 'Induced Panic',    body: '"Paris, France" login fabricates a believable threat. Your emotional override bypasses rational URL inspection.' },
+                { title: 'Induced Panic', body: '"Paris, France" login fabricates a believable threat. Your emotional override bypasses rational URL inspection.' },
                 { title: 'MFA Relay Attack', body: 'Attacker logs into the real bank with your stolen password instantly, then re-serves an authentic OTP to you to intercept.' },
                 { title: 'Zero-Delay Exfil', body: 'Every digit you type is forwarded to the attacker in milliseconds — well within the standard OTP expiry window of 30–60 seconds.' },
               ].map((item) => (

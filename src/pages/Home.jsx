@@ -33,25 +33,25 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative text-center overflow-hidden py-24 px-6 rounded-[3rem] bg-slate-950 border border-slate-800 shadow-3xl group">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-cyan-500)_0%,_transparent_75%)] opacity-[0.03] animate-pulse"></div>
-        
+
         <Motion.div
-           initial={{ opacity: 0, scale: 0.95 }}
-           animate={{ opacity: 1, scale: 1 }}
-           transition={{ duration: 0.8 }}
-           className="relative z-10 space-y-8"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 space-y-8"
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-cyan-950/50 border border-cyan-500/20 text-cyan-500 text-[10px] font-black tracking-[0.2em] uppercase">
             <Zap className="w-3 h-3" />
             Active Deployment: LUCKY_PHISHGUARD_SECURE
           </div>
-          
+
           <h1 className="text-4xl md:text-7xl font-black tracking-tighter text-white leading-tight italic uppercase">
             PhishGuard : <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 drop-shadow-2xl">
               Phishing Detection & Prevention
             </span>
           </h1>
-          
+
           <p className="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed font-medium">
             Welcome to the PhishGuard Intel Portal. We provide state-of-the-art forensic tools to analyze, detect, and neutralize advanced social engineering threats. Developed by Lucky.
           </p>

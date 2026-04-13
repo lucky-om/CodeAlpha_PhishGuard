@@ -6,7 +6,8 @@ We currently provide active security support for the following versions of Phish
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.0.x   | ✅ Yes             |
+| 2.0.x   | ✅ Yes             |
+| 1.0.x   | ❌ No              |
 | < 1.0.0 | ❌ No              |
 
 ## Reporting a Vulnerability

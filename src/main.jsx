@@ -6,7 +6,6 @@ import App from './App.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { GameProvider } from './context/GameContext.jsx'
 
-// Calculate basename based on the current hostname to support both custom domain and repo URL
 const basename = window.location.hostname === 'phishguard.luckyverse.tech' ? '/' : '/CodeAlpha_PhishGuard';
 
 createRoot(document.getElementById('root')).render(

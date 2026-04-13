@@ -1,15 +1,8 @@
-/* HeaderForensicLab.jsx — Email Header Forensic Analysis Tool
-   Displays raw email headers with clickable forensic beacons that highlight
-   specific lines after the user runs the "Analyze Headers" scan.
-   The DECODED tab shows a structured breakdown of the same fields.
-   Coded by Lucky | Om Patel */
-
+// CODED BY LUCKY
 import { useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { FileSearch, ShieldAlert, Cpu, CheckCircle2, AlertTriangle, X } from 'lucide-react';
 
-// Each hotspot maps to a specific raw header line via `id`.
-// `fieldMatch` is used only for documentation — matching is done by hotspot.id in rawLines.
 const headerHotspots = [
   {
     id: 'hdr-return-path',
@@ -46,23 +39,16 @@ const headerHotspots = [
 ];
 
 const colorMap = {
-  rose:  { dot: 'bg-rose-600',  ring: 'border-rose-500',  bg: 'bg-rose-500/10',  text: 'text-rose-500',  hl: 'bg-rose-500/20 text-rose-300 border-l-4 border-rose-500' },
+  rose: { dot: 'bg-rose-600', ring: 'border-rose-500', bg: 'bg-rose-500/10', text: 'text-rose-500', hl: 'bg-rose-500/20 text-rose-300 border-l-4 border-rose-500' },
   amber: { dot: 'bg-amber-500', ring: 'border-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-500', hl: 'bg-amber-500/15 text-amber-300 border-l-4 border-amber-500' },
 };
 
 export default function HeaderForensicLab() {
-  // 'raw' shows the original header text; 'decoded' shows a structured table
   const [activeTab, setActiveTab] = useState('raw');
-
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  // showFindings is set true after the analysis scan completes, enabling beacon highlights
   const [showFindings, setShowFindings] = useState(false);
-
   const [activeHotspot, setActiveHotspot] = useState(null);
 
-  // Raw header lines — each line optionally references a hotspot id.
-  // Lines with a hotspot id become clickable after the analysis runs.
   const rawLines = [
     { text: 'Delivered-To: user@example.com' },
     { text: 'Received: by 2002:a05:620a:208b:b0:78a:5c2a:13d with SMTP id d11csp1028753qkh;' },
@@ -80,17 +66,13 @@ export default function HeaderForensicLab() {
     setIsAnalyzing(true);
     setShowFindings(false);
     setActiveHotspot(null);
-    // 2.2-second delay simulates a real analysis scan before revealing findings
     setTimeout(() => {
       setIsAnalyzing(false);
       setShowFindings(true);
     }, 2200);
   };
 
-  // Toggle: same beacon closes; different beacon opens
   const toggleHotspot = (spot) => setActiveHotspot(prev => prev?.id === spot.id ? null : spot);
-
-  // Looks up the hotspot definition for a given raw header line (if any)
   const getLineHotspot = (line) => line.hotspot ? headerHotspots.find(h => h.id === line.hotspot) : null;
 
   return (
@@ -191,11 +173,10 @@ export default function HeaderForensicLab() {
                         // Highlighted lines become clickable beacons after analysis runs
                         <div key={i} className={`relative group transition-all duration-200 ${isHighlighted ? 'cursor-pointer' : ''}`}
                           onClick={() => isHighlighted && toggleHotspot(spot)}>
-                          <pre className={`text-[11px] font-mono whitespace-pre-wrap leading-relaxed px-3 py-1 rounded-lg ${
-                            isActive       ? colorMap[spot.color].hl :
-                            isHighlighted  ? `${colorMap[spot.color].hl} opacity-80` :
-                            'text-slate-400'
-                          }`}>
+                          <pre className={`text-[11px] font-mono whitespace-pre-wrap leading-relaxed px-3 py-1 rounded-lg ${isActive ? colorMap[spot.color].hl :
+                              isHighlighted ? `${colorMap[spot.color].hl} opacity-80` :
+                                'text-slate-400'
+                            }`}>
                             {line.text}
                           </pre>
                           {/* Badge number appears on the right edge of each flagged line */}

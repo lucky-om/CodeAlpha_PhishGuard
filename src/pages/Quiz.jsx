@@ -3,9 +3,7 @@ import QuizBoard from '../components/quiz/QuizBoard';
 import { motion as Motion } from 'framer-motion';
 
 export default function Quiz() {
-  /**
-   * Randomized assessment logic is handled client-side to ensure no backend manipulation is possible.
-   */
+
   return (
     <Motion.div
       initial={{ opacity: 0, y: 20 }}
