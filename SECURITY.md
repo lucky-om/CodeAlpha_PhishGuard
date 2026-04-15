@@ -6,9 +6,9 @@ We currently provide active security support for the following versions of Phish
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.0.x   | ✅ Yes             |
-| 1.0.x   | ❌ No              |
-| < 1.0.0 | ❌ No              |
+| 4.0.0   | ✅ Yes             |
+| 3.0.0   | ❌ No              |
+| < 3.0.0 | ❌ No              |
 
 ## Reporting a Vulnerability
 
@@ -32,4 +32,4 @@ The PhishGuard codebase adheres to strict **Secure Coding** principles:
 **Thank you for helping keep the PhishGuard community safe.**
 
 ---
-*Coded by Lucky // Secured Platform Initiative*
+*Coded by Lucky*

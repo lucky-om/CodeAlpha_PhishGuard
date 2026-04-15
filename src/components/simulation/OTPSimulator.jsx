@@ -1,4 +1,5 @@
-// CODED BY LUCKY
+// Coded by Lucky
+
 import { useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { Landmark, ShieldAlert, Key, CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';

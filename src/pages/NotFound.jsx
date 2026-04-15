@@ -1,3 +1,4 @@
+// Coded by Lucky
 import { motion as Motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
 import { ShieldAlert, ArrowLeft, Home, Zap } from 'lucide-react';
@@ -7,7 +8,7 @@ export default function NotFound() {
     <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 relative overflow-hidden">
       {/* Background Decorative Element */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full -z-10" />
-      
+
       <Motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -36,7 +37,7 @@ export default function NotFound() {
         className="space-y-4 max-w-xl mx-auto"
       >
         <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 uppercase tracking-tight">
-          Unauthorized Access / Path Not Found
+          Unauthorized Access / Page Not Found
         </h2>
         <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
           The security perimeter has been breached, or more likely, the page you are looking for has been purged or moved. Return to the secure zone.
@@ -56,7 +57,7 @@ export default function NotFound() {
           <Home className="w-4 h-4" />
           Back to Secure Home
         </NavLink>
-        
+
         <NavLink
           to="/simulation"
           className="flex items-center gap-2 px-8 py-4 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-2xl font-black uppercase tracking-widest text-xs transition-all hover:bg-slate-800 dark:hover:bg-white"

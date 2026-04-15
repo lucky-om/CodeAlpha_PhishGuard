@@ -1,7 +1,8 @@
-/* coded by Lucky */
+// Coded by Lucky
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { analyzeUrl, decodeUrl, TLD_MAP } from '../utils/detectorLogic';
+import { sanitizeUrl, sanitizeText } from '../utils/sanitize';
 import {
   Search, ShieldAlert, AlertTriangle, ShieldCheck, Info, Terminal as TerminalIcon,
   Loader2, Bug, Lock, Copy, CheckCheck, ExternalLink, Zap, ChevronDown,
@@ -10,7 +11,7 @@ import {
 import { useGame } from '../context/GameContext';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 
-// ── Constants ──────────────────────────────────────────────────────────────────
+
 const EXAMPLE_URLS = [
   'paypal-secure-login.xyz',
   'amazon-billing-update.info/verify',
@@ -49,7 +50,7 @@ const COMMUNITY_VERDICTS = [
   { label: 'Clean', color: 'emerald' },
 ];
 
-// ── Sub-Components ─────────────────────────────────────────────────────────────
+
 
 function RiskGauge({ score }) {
   const [animated, setAnimated] = useState(false);
@@ -189,16 +190,43 @@ function FlagCard({ flag }) {
 }
 
 function BeginnerReport({ riskLevel, flags }) {
-  const verdict = riskLevel === 'High' ? { emoji: '🚨', text: 'Danger! Do NOT visit this link.', sub: 'This URL has multiple serious red flags consistent with phishing attacks.', color: 'rose' } :
-    riskLevel === 'Medium' ? { emoji: '⚠️', text: 'Be Careful — Exercise Caution.', sub: 'This link has some suspicious characteristics. Verify before proceeding.', color: 'yellow' } :
-      riskLevel === 'Invalid' ? { emoji: '❓', text: 'Invalid Input.', sub: 'Please enter a valid URL or domain name.', color: 'slate' } :
-        { emoji: '✅', text: 'Looks Safe — Proceed with Care.', sub: 'No obvious red flags found, but always verify manually before entering personal data.', color: 'emerald' };
+  const verdict = riskLevel === 'High'
+    ? {
+      emoji: '🚨',
+      text: 'Danger! Do NOT visit this link.',
+      sub: 'This URL has multiple serious red flags consistent with phishing attacks.',
+      boxClass: 'bg-rose-500/10 border-rose-500/20',
+      textClass: 'text-rose-500'
+    }
+    : riskLevel === 'Medium'
+      ? {
+        emoji: '⚠️',
+        text: 'Be Careful — Exercise Caution.',
+        sub: 'This link has some suspicious characteristics. Verify before proceeding.',
+        boxClass: 'bg-yellow-500/10 border-yellow-500/20',
+        textClass: 'text-yellow-500'
+      }
+      : riskLevel === 'Invalid'
+        ? {
+          emoji: '❓',
+          text: 'Invalid Input.',
+          sub: 'Please enter a valid URL or domain name.',
+          boxClass: 'bg-slate-500/10 border-slate-500/20',
+          textClass: 'text-slate-400'
+        }
+        : {
+          emoji: '✅',
+          text: 'Looks Safe — Proceed with Care.',
+          sub: 'No obvious red flags found, but always verify manually before entering personal data.',
+          boxClass: 'bg-emerald-500/10 border-emerald-500/20',
+          textClass: 'text-emerald-500'
+        };
 
   return (
     <div className="space-y-4">
-      <div className={`p-6 rounded-2xl bg-${verdict.color}-500/10 border border-${verdict.color}-500/20 text-center`}>
+      <div className={`p-6 rounded-2xl border text-center ${verdict.boxClass}`}>
         <div className="text-5xl mb-3">{verdict.emoji}</div>
-        <h4 className={`text-lg font-black text-${verdict.color}-500`}>{verdict.text}</h4>
+        <h4 className={`text-lg font-black ${verdict.textClass}`}>{verdict.text}</h4>
         <p className="text-sm text-slate-400 mt-1">{verdict.sub}</p>
       </div>
       {flags.filter(f => f.type === 'critical').slice(0, 2).map((f, i) => (
@@ -211,9 +239,9 @@ function BeginnerReport({ riskLevel, flags }) {
   );
 }
 
-// ── Main Component ─────────────────────────────────────────────────────────────
+
 export default function Analysis() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [url, setUrl] = useState(searchParams.get('url') || '');
   const [report, setReport] = useState(null);
   const [analyzedDomain, setAnalyzedDomain] = useState('');
@@ -222,9 +250,6 @@ export default function Analysis() {
   const [copied, setCopied] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
   const [activeTab, setActiveTab] = useState('single');
-  const [bulkUrls, setBulkUrls] = useState('');
-  const [bulkResults, setBulkResults] = useState(null);
-  const [isBulkScanning, setIsBulkScanning] = useState(false);
   const [decodeInput, setDecodeInput] = useState('');
   const [decodeResults, setDecodeResults] = useState(null);
   const [beginnerMode, setBeginnerMode] = useState(false);
@@ -232,7 +257,7 @@ export default function Analysis() {
     try { return JSON.parse(localStorage.getItem('phishguard_history') || '[]'); } catch { return []; }
   });
   const [showHistory, setShowHistory] = useState(false);
-  const consoleEndRef = useRef(null);
+  const consoleContainerRef = useRef(null);
   const inputRef = useRef(null);
   const { markSectionComplete } = useGame();
 
@@ -256,7 +281,9 @@ export default function Analysis() {
   }, []);
 
   useEffect(() => {
-    if (consoleEndRef.current) consoleEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (consoleContainerRef.current) {
+      consoleContainerRef.current.scrollTop = consoleContainerRef.current.scrollHeight;
+    }
   }, [logs]);
 
   const addLog = useCallback((msg, type = 'info') => {
@@ -283,17 +310,12 @@ export default function Analysis() {
     setAnalyzedDomain(domain);
 
     const steps = [
-      { msg: 'System integrity check... OK', type: 'sys' },
-      { msg: 'Initializing Sandboxed Inspection Engine v3.0.0...', type: 'sys' },
-      { msg: `Target ingress: ${targetUrl}`, type: 'bot' },
-      { msg: 'Running 18-point heuristic signature check...', type: 'bot' },
-      { msg: 'Validating TLD against risk registry database...', type: 'sys' },
-      { msg: 'Checking 20 brand impersonation clusters...', type: 'bot' },
-      { msg: 'Scanning for URL shorteners, IP domains, punycode...', type: 'bot' },
-      { msg: 'Analyzing entropy, subdomain depth, path keywords...', type: 'sys' },
-      { msg: 'Checking open redirects and free hosting abuse...', type: 'sys' },
-      { msg: 'Calculating domain reputation score...', type: 'sys' },
-      { msg: 'Finalizing threat assessment report...', type: 'sys' },
+      { msg: 'Checking domain structure...', type: 'sys' },
+      { msg: `Target: ${targetUrl}`, type: 'bot' },
+      { msg: 'Scanning for known phishing patterns...', type: 'bot' },
+      { msg: 'Validating domain reputation...', type: 'sys' },
+      { msg: 'Verifying URL paths and redirects...', type: 'sys' },
+      { msg: 'Finalizing report...', type: 'sys' },
     ];
 
     for (const step of steps) {
@@ -304,16 +326,16 @@ export default function Analysis() {
     const result = analyzeUrl(targetUrl);
     setReport(result);
     setIsAnalyzing(false);
-    markSectionComplete('detector', 20);
+    markSectionComplete('detector');
     addLog(`Audit complete. Threat Level: ${result.riskLevel} (${result.riskScore}/10)`, 'success');
     saveToHistory(targetUrl, result);
-    // Update ?url= param in browser bar for sharing
-    setSearchParams({ url: targetUrl });
-  }, [addLog, markSectionComplete, saveToHistory, setSearchParams]);
+    // Note: setSearchParams intentionally NOT called here — it triggers App scroll-to-top.
+    // Sharing is handled manually via the Share button.
+  }, [addLog, markSectionComplete, saveToHistory]);
 
   const handleAnalyze = (e) => {
     e.preventDefault();
-    const trimmed = url.trim();
+    const trimmed = sanitizeUrl(url);
     if (!trimmed) return;
     if (!trimmed.includes('.') || trimmed.length < 4) {
       addLog('Error: Input rejected. Provide a valid domain or URL.', 'bot');
@@ -331,7 +353,7 @@ export default function Analysis() {
       'Findings:',
       ...report.flags.map(f => `[${f.type.toUpperCase()}] ${f.message}`),
       '',
-      `Generated by PhishGuard v3.0.0 | phishguard.luckyverse.tech`,
+      `Generated by PhishGuard v4.0.0 | phishguard.luckyverse.tech`,
     ].join('\n');
     navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500); });
   };
@@ -341,23 +363,12 @@ export default function Analysis() {
     navigator.clipboard.writeText(shareUrl).then(() => { setCopiedShare(true); setTimeout(() => setCopiedShare(false), 2500); });
   };
 
-  const handleBulkScan = async () => {
-    const lines = bulkUrls.split('\n').map(l => l.trim()).filter(Boolean);
-    if (!lines.length) return;
-    setIsBulkScanning(true);
-    setBulkResults(null);
-    const results = [];
-    for (const line of lines) {
-      await new Promise(r => setTimeout(r, 80));
-      results.push({ url: line, ...analyzeUrl(line) });
-    }
-    setBulkResults(results);
-    setIsBulkScanning(false);
-  };
+
 
   const handleDecode = () => {
-    if (!decodeInput.trim()) return;
-    setDecodeResults(decodeUrl(decodeInput));
+    const clean = sanitizeText(decodeInput);
+    if (!clean) return;
+    setDecodeResults(decodeUrl(clean));
   };
 
   const clearHistory = () => {
@@ -367,7 +378,6 @@ export default function Analysis() {
 
   const TABS = [
     { id: 'single', label: 'Single URL', icon: <Search className="w-4 h-4" /> },
-    { id: 'bulk', label: 'Bulk Scan', icon: <Layers className="w-4 h-4" /> },
     { id: 'decoder', label: 'URL Decoder', icon: <Unlock className="w-4 h-4" /> },
   ];
 
@@ -377,69 +387,91 @@ export default function Analysis() {
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 text-xs font-mono font-bold uppercase">
-          <Zap className="w-3 h-3" /> Threat Intelligence Lab v3.0.0
+          <Search className="w-3 h-3" /> Audit Tool
         </div>
-        <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white">
-          AI-Driven Security Audit
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
+          Security Audit
         </h2>
         <p className="text-slate-500 max-w-2xl mx-auto">
-          Inspect suspicious domains with an 18-point heuristic engine. Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-xs font-mono">/</kbd> to focus the input. All processing is local — zero data leakage.
+          Inspect suspicious domains locally in your browser.
         </p>
       </div>
 
       <div className="max-w-5xl mx-auto space-y-8">
 
         {/* Mode Tabs */}
-        <div className="flex bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 gap-1 w-fit mx-auto">
+        <div className="w-full overflow-x-auto no-scrollbar">
+          <div className="flex bg-slate-900 p-1.5 rounded-2xl border border-slate-800 gap-1 w-max mx-auto min-w-full sm:min-w-0 sm:w-fit">
           {TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id
-                ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-md'
-                : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+                ? 'bg-slate-800 text-cyan-400 shadow-md'
+                : 'text-slate-500 hover:text-white'}`}
             >
               {tab.icon}{tab.label}
             </button>
           ))}
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
 
-          {/* ── SINGLE URL MODE ─────────────────────────────────────────────── */}
+          {/* Single URL mode */}
           {activeTab === 'single' && (
             <Motion.div key="single" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-8">
 
               {/* Input form */}
-              <form onSubmit={handleAnalyze} className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                  <Lock className="h-6 w-6 text-slate-400 group-focus-within:text-cyan-500 transition-colors" />
+              <form onSubmit={handleAnalyze} className="relative group flex flex-col sm:block gap-3">
+                <div className="relative w-full">
+                  <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                    <Lock className="h-6 w-6 text-slate-400 group-focus-within:text-cyan-500 transition-colors" />
+                  </div>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={url}
+                    onChange={(e) => setUrl(sanitizeUrl(e.target.value))}
+                    disabled={isAnalyzing}
+                    placeholder="Enter URL to audit... press / to focus"
+                    className="block w-full pl-14 sm:pl-16 pr-4 sm:pr-[280px] py-5 sm:py-6 bg-slate-950 border-2 border-slate-800 rounded-[2rem] focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500 transition-all text-sm sm:text-base shadow-2xl outline-none disabled:opacity-50 font-mono"
+                  />
+                  <div className="hidden sm:flex absolute right-3 inset-y-3 items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setBeginnerMode(v => !v)}
+                      title={beginnerMode ? 'Switch to Expert mode' : 'Switch to Beginner mode'}
+                      className={`px-3 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${beginnerMode ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-500' : 'border-slate-800 text-slate-400 hover:text-cyan-500'}`}
+                    >
+                      {beginnerMode ? 'Beginner' : 'Expert'}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isAnalyzing || !url.trim()}
+                      className="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-[1.5rem] font-bold transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-cyan-500/20 whitespace-nowrap"
+                    >
+                      {isAnalyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+                      {isAnalyzing ? 'Auditing...' : 'Run Audit'}
+                    </button>
+                  </div>
                 </div>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  disabled={isAnalyzing}
-                  placeholder="Enter URL to audit (e.g., paypal-secure-login.xyz) — or press /"
-                  className="block w-full pl-16 pr-48 py-6 bg-white dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-[2rem] focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500 transition-all text-base shadow-2xl outline-none disabled:opacity-50 font-mono"
-                />
-                <div className="absolute inset-y-3 right-3 flex items-center gap-2">
+                {/* Mobile buttons */}
+                <div className="flex sm:hidden items-center justify-end gap-2 w-full mt-2">
                   <button
                     type="button"
                     onClick={() => setBeginnerMode(v => !v)}
-                    title={beginnerMode ? 'Switch to Expert mode' : 'Switch to Beginner mode'}
-                    className={`px-3 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${beginnerMode ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-500' : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:text-cyan-500'}`}
+                    className={`flex-1 px-3 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all border ${beginnerMode ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-500' : 'border-slate-800 text-slate-400'}`}
                   >
-                    {beginnerMode ? 'Beginner' : 'Expert'}
+                    {beginnerMode ? 'Beginner Mode' : 'Expert Mode'}
                   </button>
                   <button
                     type="submit"
                     disabled={isAnalyzing || !url.trim()}
-                    className="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-[1.5rem] font-bold transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-cyan-500/20 whitespace-nowrap"
+                    className="flex-[2] px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-[1.5rem] font-bold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 whitespace-nowrap"
                   >
                     {isAnalyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-                    {isAnalyzing ? 'Auditing...' : 'Run Audit'}
+                    {isAnalyzing ? 'Auditing...' : 'Run'}
                   </button>
                 </div>
               </form>
@@ -456,7 +488,7 @@ export default function Analysis() {
               </div>
 
               {/* Main Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pt-16 sm:pt-0">
 
                 {/* Terminal Console */}
                 <div className="bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col h-[500px]">
@@ -471,7 +503,7 @@ export default function Analysis() {
                       <div className="w-3 h-3 rounded-full bg-emerald-500 opacity-60" />
                     </div>
                   </div>
-                  <div className="flex-1 p-6 font-mono text-xs overflow-y-auto space-y-2 custom-scrollbar">
+                  <div ref={consoleContainerRef} className="flex-1 p-6 font-mono text-xs overflow-y-auto space-y-2 custom-scrollbar">
                     <AnimatePresence>
                       {logs.length === 0 && <p className="text-slate-700 italic">SECURE CONSOLE IDLE // AWAITING TARGET...</p>}
                       {logs.map((log, i) => (
@@ -486,7 +518,6 @@ export default function Analysis() {
                         </Motion.div>
                       ))}
                     </AnimatePresence>
-                    <div ref={consoleEndRef} />
                   </div>
                 </div>
 
@@ -495,8 +526,8 @@ export default function Analysis() {
                   <AnimatePresence mode="wait">
                     {!report && !isAnalyzing ? (
                       <Motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="h-full flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-900/40 text-center min-h-[500px]">
-                        <Bug className="w-16 h-16 text-slate-300 dark:text-white/5 mb-4" />
+                        className="h-full flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/40 text-center min-h-[500px]">
+                        <Bug className="w-16 h-16 text-white/5 mb-4" />
                         <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">Awaiting Target</p>
                         <p className="text-slate-400 text-xs mt-2">Enter a URL above and press Run Audit</p>
                         <p className="text-slate-600 text-[9px] mt-3 font-mono">Press / to focus input</p>
@@ -504,15 +535,12 @@ export default function Analysis() {
                     ) : isAnalyzing ? (
                       <Motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         className="h-full flex flex-col items-center justify-center space-y-4 min-h-[500px]">
-                        <div className="relative">
-                          <div className="w-24 h-24 border-4 border-cyan-500/10 border-t-cyan-500 rounded-full animate-spin" />
-                          <ShieldCheck className="w-10 h-10 text-cyan-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
-                        </div>
-                        <p className="font-mono text-xs text-cyan-500 animate-pulse tracking-widest uppercase">Sandboxed Analysis In Progress</p>
+                        <Loader2 className="w-10 h-10 text-cyan-500 animate-spin" />
+                        <p className="font-mono text-xs text-cyan-500 tracking-widest uppercase">Analyzing...</p>
                       </Motion.div>
                     ) : (
                       <Motion.div key="report" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                        className="bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+                        className="bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden">
 
                         {/* Report Header with Gauge */}
                         <div className={`p-6 border-b flex items-center justify-between ${report.riskLevel === 'High' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' :
@@ -529,18 +557,6 @@ export default function Analysis() {
                                 {report.flags.length} Finding{report.flags.length !== 1 ? 's' : ''} Detected
                               </p>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button onClick={handleShare} title="Share report link"
-                              className="p-2.5 rounded-xl bg-white/20 hover:bg-white/30 transition-all flex items-center gap-1.5 text-xs font-bold">
-                              {copiedShare ? <CheckCheck className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-                              <span className="hidden sm:inline">{copiedShare ? 'Copied!' : 'Share'}</span>
-                            </button>
-                            <button onClick={handleCopy} title="Copy report"
-                              className="p-2.5 rounded-xl bg-white/20 hover:bg-white/30 transition-all flex items-center gap-1.5 text-xs font-bold">
-                              {copied ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                              <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy'}</span>
-                            </button>
                           </div>
                         </div>
 
@@ -634,69 +650,9 @@ export default function Analysis() {
             </Motion.div>
           )}
 
-          {/* ── BULK SCAN MODE ───────────────────────────────────────────────── */}
-          {activeTab === 'bulk' && (
-            <Motion.div key="bulk" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
-              <div className="bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 space-y-6 shadow-xl">
-                <div>
-                  <h3 className="text-lg font-black text-slate-900 dark:text-white mb-1">Bulk URL Scanner</h3>
-                  <p className="text-sm text-slate-500">Paste up to 50 URLs — one per line. Instantly get risk scores for all of them.</p>
-                </div>
-                <textarea
-                  value={bulkUrls}
-                  onChange={e => setBulkUrls(e.target.value)}
-                  placeholder={'paypal-secure.xyz\nbit.ly/urgent-alert\nhttps://amazon.com\nlogin.secure.random.tk'}
-                  rows={8}
-                  className="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl p-5 text-sm font-mono text-slate-300 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 outline-none transition-all resize-none"
-                />
-                <button
-                  onClick={handleBulkScan}
-                  disabled={isBulkScanning || !bulkUrls.trim()}
-                  className="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-2xl font-black uppercase tracking-widest text-sm transition-all disabled:opacity-50 flex items-center gap-3 shadow-lg shadow-cyan-500/20"
-                >
-                  {isBulkScanning ? <Loader2 className="w-5 h-5 animate-spin" /> : <Layers className="w-5 h-5" />}
-                  {isBulkScanning ? 'Scanning...' : 'Scan All URLs'}
-                </button>
-              </div>
 
-              {bulkResults && (
-                <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  className="bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl">
-                  <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">
-                      Bulk Scan Results — {bulkResults.length} URLs
-                    </span>
-                    <div className="flex gap-4 text-[9px] font-black uppercase">
-                      <span className="text-rose-500">{bulkResults.filter(r => r.riskLevel === 'High').length} High</span>
-                      <span className="text-yellow-500">{bulkResults.filter(r => r.riskLevel === 'Medium').length} Medium</span>
-                      <span className="text-emerald-500">{bulkResults.filter(r => r.riskLevel === 'Low').length} Safe</span>
-                    </div>
-                  </div>
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {bulkResults.map((res, i) => (
-                      <div key={i} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                        <div className="flex items-center gap-3 min-w-0">
-                          {res.riskLevel === 'High' ? <ShieldAlert className="w-4 h-4 text-rose-500 shrink-0" /> :
-                            res.riskLevel === 'Medium' ? <AlertTriangle className="w-4 h-4 text-yellow-500 shrink-0" /> :
-                              <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />}
-                          <span className="text-xs font-mono text-slate-600 dark:text-slate-400 truncate">{res.url}</span>
-                        </div>
-                        <div className="flex items-center gap-3 shrink-0 ml-4">
-                          <span className="text-xs font-bold font-mono text-slate-500">{res.riskScore}/10</span>
-                          <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg ${res.riskLevel === 'High' ? 'text-rose-500 bg-rose-500/10' :
-                            res.riskLevel === 'Medium' ? 'text-yellow-500 bg-yellow-500/10' : 'text-emerald-500 bg-emerald-500/10'}`}>
-                            {res.riskLevel}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Motion.div>
-              )}
-            </Motion.div>
-          )}
 
-          {/* ── URL DECODER MODE ─────────────────────────────────────────────── */}
+          {/* URL decoder mode */}
           {activeTab === 'decoder' && (
             <Motion.div key="decoder" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
               <div className="bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 space-y-6 shadow-xl">
@@ -708,7 +664,7 @@ export default function Analysis() {
                   <input
                     type="text"
                     value={decodeInput}
-                    onChange={e => setDecodeInput(e.target.value)}
+                    onChange={e => setDecodeInput(sanitizeText(e.target.value))}
                     onKeyDown={e => e.key === 'Enter' && handleDecode()}
                     placeholder="https://bit.ly/3xAm%2Fple?redirect=aHR0cHM6Ly9waGlzaC5leGFtcGxl"
                     className="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl px-5 py-4 text-sm font-mono text-slate-300 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 outline-none transition-all pr-36"

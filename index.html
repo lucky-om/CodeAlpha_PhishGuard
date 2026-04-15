@@ -5,16 +5,22 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <meta name="application-name" content="PhishGuard" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PhishGuard" />
   <script type="text/javascript">
     // Single Page Apps for GitHub Pages
     // https://github.com/rafgraph/spa-github-pages
-    (function(l) {
-      if (l.search[1] === '/' ) {
-        var decoded = l.search.slice(1).split('&').map(function(s) { 
+    (function (l) {
+      if (l.search[1] === '/') {
+        var decoded = l.search.slice(1).split('&').map(function (s) {
           return s.replace(/~and~/g, '&')
         }).join('?');
         window.history.replaceState(null, null,
-            l.pathname.slice(0, -1) + decoded + l.hash
+          l.pathname.slice(0, -1) + decoded + l.hash
         );
       }
     }(window.location))
@@ -50,9 +56,11 @@
     content="Analyze suspicious URLs, explore phishing simulations, and test your security IQ. Built by Lucky." />
   <meta name="twitter:image" content="https://phishguard.luckyverse.tech/og-image.png" />
 
-  <!-- Google Fonts: Inter -->
+  <!-- Google Fonts: Inter + JetBrains Mono (preloaded for performance) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap"
     rel="stylesheet" />
@@ -70,7 +78,7 @@
     "@type": "WebApplication",
     "name": "PhishGuard",
     "url": "https://phishguard.luckyverse.tech",
-    "description": "Enterprise-grade phishing simulation and AI link analysis platform for cybersecurity awareness training.",
+    "description": "Enterprise-grade phishing simulation and link analysis platform for cybersecurity awareness training.",
     "applicationCategory": "SecurityApplication",
     "author": {
       "@type": "Person",

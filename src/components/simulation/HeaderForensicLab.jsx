@@ -1,4 +1,5 @@
-// CODED BY LUCKY
+// Coded by Lucky
+
 import { useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { FileSearch, ShieldAlert, Cpu, CheckCircle2, AlertTriangle, X } from 'lucide-react';

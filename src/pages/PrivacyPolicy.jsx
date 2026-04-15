@@ -1,4 +1,5 @@
-/* coded by lucky */
+// Coded by Lucky
+
 import { motion as Motion } from 'framer-motion';
 import { Shield, Eye, Lock, FileText, Globe } from 'lucide-react';
 
@@ -17,7 +18,7 @@ export default function PrivacyPolicy() {
     {
       title: 'Secure Local Storage',
       icon: <Lock className="w-6 h-6 text-emerald-500" />,
-      text: 'Your simulation progress (score) is stored locally in your browser\'s localStorage and never transmitted to our servers.'
+      text: 'Your simulation progress and recent scan history are stored locally in your browser\'s localStorage and never transmitted to our servers.'
     },
     {
       title: 'External Resource Links',
@@ -60,7 +61,7 @@ export default function PrivacyPolicy() {
 
         <div className="mt-16 pt-8 border-t border-slate-100 dark:border-slate-800 text-center">
            <p className="text-xs text-slate-400 uppercase tracking-widest font-bold">
-              All Rights Reserved 2026 // Coded by Lucky
+              All Rights Reserved 2026
            </p>
         </div>
       </div>

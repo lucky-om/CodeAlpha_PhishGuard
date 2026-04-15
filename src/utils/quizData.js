@@ -1,3 +1,4 @@
+// Coded by Lucky
 export const quizQuestions = [
   {
     id: 1,

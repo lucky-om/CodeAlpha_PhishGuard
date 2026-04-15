@@ -1,4 +1,5 @@
-/* coded by lucky */
+// Coded by Lucky
+
 export const emails = [
   {
     id: 'microsoft',

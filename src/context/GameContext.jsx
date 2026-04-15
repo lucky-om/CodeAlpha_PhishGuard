@@ -1,11 +1,9 @@
+// Coded by Lucky
 import { createContext, useContext, useState } from 'react';
 
 const GameContext = createContext();
 
 export function GameProvider({ children }) {
-  const [score, setScore] = useState(0);
-  const [progress, setProgress] = useState(0);
-  
   const [completedSections, setCompletedSections] = useState({
     gallery: false,
     visualizer: false,
@@ -13,36 +11,21 @@ export function GameProvider({ children }) {
     quiz: false,
   });
 
-  const addScore = (points) => {
-    setScore(prev => Math.min(prev + points, 100));
-  };
-
-  const markSectionComplete = (section, points) => {
+  // Marks a simulation section as complete. Points param kept for API compatibility.
+  const markSectionComplete = (section) => {
     if (!completedSections[section]) {
       setCompletedSections(prev => ({ ...prev, [section]: true }));
-      addScore(points);
-      setProgress(prev => Math.min(prev + 25, 100));
     }
   };
 
-  const resetGame = () => {
-    setScore(0);
-    setProgress(0);
-    setCompletedSections({
-      gallery: false,
-      visualizer: false,
-      detector: false,
-      quiz: false,
-    });
-  };
-
   return (
-    <GameContext.Provider value={{ score, progress, completedSections, markSectionComplete, resetGame }}>
+    <GameContext.Provider value={{ completedSections, markSectionComplete }}>
       {children}
     </GameContext.Provider>
   );
 }
 
+/* eslint-disable-next-line react-refresh/only-export-components */
 export function useGame() {
   return useContext(GameContext);
 }

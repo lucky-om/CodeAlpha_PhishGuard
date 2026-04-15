@@ -1,7 +1,7 @@
 # 🛡️ PhishGuard Security Platform
 > **Next-Gen Cyber-Threat Intelligence & Educational Simulation Engine**
 
-![PhishGuard Version](https://img.shields.io/badge/version-2.0.1--stable-cyan?style=for-the-badge&logo=shield)
+![PhishGuard Version](https://img.shields.io/badge/version-4.0.0-cyan?style=for-the-badge&logo=shield)
 ![Status](https://img.shields.io/badge/Status-Verified-emerald?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Proprietary-rose?style=for-the-badge)
 
@@ -11,8 +11,8 @@ PhishGuard is a high-fidelity cybersecurity awareness platform designed to educa
 
 ## 🚀 Key Features
 
-### 🔍 AI-Driven Link Analyzer
-Deploy a sandboxed autonomous agent to inspect suspicious domains. The engine analyzes:
+### 🔍 Link Analyzer
+Inspect suspicious domains in a local sandbox. The engine analyzes:
 - **Homograph Recognition**: Detects visually identical characters (e.g., `rn` vs `m`).
 - **Typosquatting Logic**: Calculates Levenshtein distance against global brands.
 - **FQDN Validation**: Strict regex enforcement to filter out random/malicious connections.
@@ -49,7 +49,7 @@ Security is at the heart of PhishGuard. For information on how we handle threat 
 
 ## ⚖️ License & Rights
 
-**Copyright © 2026 Lucky (Lucky-om). All Rights Reserved.**
+**Copyright © 2026 Lucky. All Rights Reserved.**
 
 This software is **PROPRIETARY**. No part of this codebase may be used, copied, modified, merged, published, distributed, or sold without explicit written permission from the owner.
 

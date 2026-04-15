@@ -1,3 +1,4 @@
+// Coded by Lucky
 import { useState, useEffect } from 'react';
 import PsychologyCards from './PsychologyCards';
 import { Eye, ExternalLink, CheckCircle } from 'lucide-react';

@@ -1,7 +1,8 @@
-/* coded by lucky */
+// Coded by Lucky
+
 import { useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, ShieldAlert, CheckCircle2, ArrowLeft, Send, Zap, X } from 'lucide-react';
+import { MessageSquare, ShieldAlert, CheckCircle2, ArrowLeft, Send, X, ChevronDown } from 'lucide-react';
 
 const smishScenarios = [
   {
@@ -109,15 +110,15 @@ const smishScenarios = [
 ];
 
 const colorMap = {
-  rose: { beacon: 'bg-rose-600 shadow-rose-500/50', ring: 'border-rose-500', bg: 'bg-rose-500/10', text: 'text-rose-600 dark:text-rose-400', badge: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
-  amber: { beacon: 'bg-amber-500 shadow-amber-500/50', ring: 'border-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-600 dark:text-amber-400', badge: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
+  rose:    { beacon: 'bg-rose-600 shadow-rose-500/50',    ring: 'border-rose-500',    bg: 'bg-rose-500/10',    text: 'text-rose-600 dark:text-rose-400',    badge: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
+  amber:   { beacon: 'bg-amber-500 shadow-amber-500/50',  ring: 'border-amber-500',   bg: 'bg-amber-500/10',   text: 'text-amber-600 dark:text-amber-400',   badge: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
   emerald: { beacon: 'bg-emerald-600 shadow-emerald-500/50', ring: 'border-emerald-500', bg: 'bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
 };
 
 export default function SmishingSimulator() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showResult, setShowResult] = useState(false);
-  const [userChoice, setUserChoice] = useState(null);
+  const [showResult, setShowResult]     = useState(false);
+  const [userChoice, setUserChoice]     = useState(null);
   const [activeHotspot, setActiveHotspot] = useState(null);
 
   const scenario = smishScenarios[currentIndex];
@@ -141,114 +142,122 @@ export default function SmishingSimulator() {
 
   return (
     <div className="space-y-10">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
-        {/* ── Phone Mockup ── */}
-        <div className="flex flex-col items-center gap-8">
-          <div className="relative w-[300px] h-[600px] bg-slate-950 rounded-[3.5rem] border-[10px] border-slate-900 shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden">
-            {/* Notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-b-3xl z-30" />
+        {/* ── Phone Mockup Column ── */}
+        <div className="flex flex-col items-center gap-6">
 
-            <div className="h-full bg-slate-50 dark:bg-neutral-950 rounded-[2.8rem] overflow-hidden flex flex-col relative">
-              {/* SMS Header */}
-              <div className="p-5 pt-9 bg-white dark:bg-slate-900 border-b dark:border-slate-800 flex items-center gap-4 relative z-10">
-                <div className="w-10 h-10 rounded-2xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 text-cyan-500" />
+          {/* Phone device */}
+          <div className="relative w-full max-w-[300px] mx-auto">
+            <div className="relative w-full aspect-[300/600] bg-slate-950 rounded-[3.5rem] border-[10px] border-slate-900 shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden">
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-b-3xl z-30" />
+
+              <div className="h-full bg-slate-50 dark:bg-neutral-950 rounded-[2.8rem] overflow-hidden flex flex-col relative">
+                {/* SMS Header */}
+                <div className="p-5 pt-9 bg-white dark:bg-slate-900 border-b dark:border-slate-800 flex items-center gap-4 relative z-10">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                    <MessageSquare className="w-5 h-5 text-cyan-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-black text-slate-900 dark:text-white tracking-tight truncate">{scenario.sender}</div>
+                    <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Text Message</div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="text-xs font-black text-slate-900 dark:text-white tracking-tight">{scenario.sender}</div>
-                  <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Text Message</div>
-                </div>
-              </div>
 
-              {/* SMS Body */}
-              <div className="flex-1 p-5 space-y-6 overflow-y-auto pt-8">
-                <div className="flex flex-col items-center">
-                  <span className="text-[9px] text-slate-400 uppercase font-black tracking-[0.3em]">Today</span>
-                </div>
-                <Motion.div
-                  key={scenario.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-white dark:bg-slate-800 p-4 rounded-3xl rounded-tl-none max-w-[92%] shadow-lg border border-slate-200 dark:border-slate-700"
-                >
-                  <p className="text-[12px] text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
-                    {scenario.message}
-                  </p>
-                </Motion.div>
+                {/* SMS Body */}
+                <div className="flex-1 p-4 space-y-4 overflow-y-auto pt-6">
+                  <div className="flex flex-col items-center">
+                    <span className="text-[9px] text-slate-400 uppercase font-black tracking-[0.3em]">Today</span>
+                  </div>
+                  <Motion.div
+                    key={scenario.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-white dark:bg-slate-800 p-4 rounded-3xl rounded-tl-none max-w-[92%] shadow-lg border border-slate-200 dark:border-slate-700"
+                  >
+                    <p className="text-[11px] text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                      {scenario.message}
+                    </p>
+                  </Motion.div>
 
-                {/* ── Beacon Buttons inside phone ── */}
-                <div className="flex gap-3 flex-wrap px-1">
-                  {scenario.hotspots.map((spot) => {
-                    const c = colorMap[spot.color];
-                    const isActive = activeHotspot?.id === spot.id;
-                    return (
-                      <button
-                        key={spot.id}
-                        onClick={() => toggleHotspot(spot)}
-                        className={`relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-white ${c.beacon} shadow-lg text-white text-xs font-black transition-all duration-200 ${isActive ? 'scale-110 ring-2 ring-offset-1 ring-white' : 'hover:scale-110'}`}
-                        title={spot.title}
+                  {/* ── Beacon Buttons inside phone ── */}
+                  <div className="flex gap-3 flex-wrap px-1 items-center">
+                    {scenario.hotspots.map((spot) => {
+                      const c = colorMap[spot.color];
+                      const isActive = activeHotspot?.id === spot.id;
+                      return (
+                        <button
+                          key={spot.id}
+                          onClick={() => toggleHotspot(spot)}
+                          className={`relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-white ${c.beacon} shadow-lg text-white text-xs font-black transition-all duration-200 ${isActive ? 'scale-110 ring-2 ring-offset-1 ring-white' : 'hover:scale-110'}`}
+                          title={spot.title}
+                        >
+                          {spot.label}
+                          {!isActive && (
+                            <span className={`absolute inset-0 rounded-full ${c.beacon} animate-ping opacity-40`} />
+                          )}
+                        </button>
+                      );
+                    })}
+                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest self-center flex items-center gap-1">
+                      {activeHotspot ? (
+                        <><X className="w-2.5 h-2.5" /> Close</>
+                      ) : (
+                        <><ChevronDown className="w-2.5 h-2.5" /> Tap to investigate</>
+                      )}
+                    </span>
+                  </div>
+
+                  {/* ── Inline hotspot popover INSIDE phone ── */}
+                  <AnimatePresence mode="wait">
+                    {activeHotspot && (
+                      <Motion.div
+                        key={activeHotspot.id}
+                        initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                        transition={{ duration: 0.2 }}
+                        className={`rounded-2xl border-2 overflow-hidden shadow-xl mx-1 ${colorMap[activeHotspot.color].ring}`}
                       >
-                        {spot.label}
-                        {!isActive && (
-                          <span className={`absolute inset-0 rounded-full ${c.beacon} animate-ping opacity-40`} />
-                        )}
-                      </button>
-                    );
-                  })}
-                  <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest self-center">
-                    {activeHotspot ? 'Click beacon to close' : 'Tap beacons to investigate'}
-                  </span>
+                        <div className={`px-4 py-3 flex items-start justify-between gap-3 ${colorMap[activeHotspot.color].bg}`}>
+                          <div className="space-y-0.5 min-w-0">
+                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${colorMap[activeHotspot.color].text}`}>
+                              {activeHotspot.tactic}
+                            </span>
+                            <h4 className="text-xs font-black text-slate-900 dark:text-white leading-tight">
+                              {activeHotspot.title}
+                            </h4>
+                          </div>
+                          <button
+                            onClick={() => setActiveHotspot(null)}
+                            className="shrink-0 p-0.5 rounded-md hover:bg-black/10 transition-colors"
+                          >
+                            <X className="w-3 h-3 text-slate-500" />
+                          </button>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900 px-4 py-3">
+                          <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                            {activeHotspot.description}
+                          </p>
+                        </div>
+                      </Motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </div>
 
-              {/* Bottom bar */}
-              <div className="p-4 bg-white dark:bg-slate-900 flex gap-3 items-center">
-                <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-2xl px-4 py-2.5 text-[10px] text-slate-500 font-bold">
-                  iMessage
-                </div>
-                <div className="p-2.5 bg-cyan-600 rounded-2xl text-white shadow-lg">
-                  <Send className="w-3.5 h-3.5" />
+                {/* Bottom bar */}
+                <div className="p-4 bg-white dark:bg-slate-900 flex gap-3 items-center">
+                  <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-2xl px-4 py-2.5 text-[10px] text-slate-500 font-bold">
+                    iMessage
+                  </div>
+                  <div className="p-2.5 bg-cyan-600 rounded-2xl text-white shadow-lg">
+                    <Send className="w-3.5 h-3.5" />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* ── Hotspot Info Panel (below phone) ── */}
-          <AnimatePresence mode="wait">
-            {activeHotspot && (
-              <Motion.div
-                key={activeHotspot.id}
-                initial={{ opacity: 0, y: -12, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -12, scale: 0.97 }}
-                transition={{ duration: 0.25 }}
-                className={`w-full max-w-[340px] rounded-3xl border-2 shadow-2xl overflow-hidden ${colorMap[activeHotspot.color].ring}`}
-              >
-                <div className={`px-6 py-4 flex items-start justify-between gap-4 ${colorMap[activeHotspot.color].bg}`}>
-                  <div className="space-y-1">
-                    <span className={`text-[9px] font-black uppercase tracking-[0.25em] ${colorMap[activeHotspot.color].text}`}>
-                      {activeHotspot.tactic}
-                    </span>
-                    <h4 className="text-base font-black text-slate-900 dark:text-white leading-tight">
-                      {activeHotspot.title}
-                    </h4>
-                  </div>
-                  <button
-                    onClick={() => setActiveHotspot(null)}
-                    className="shrink-0 p-1 rounded-lg hover:bg-black/10 transition-colors mt-0.5"
-                  >
-                    <X className="w-4 h-4 text-slate-500" />
-                  </button>
-                </div>
-                <div className="bg-white dark:bg-slate-950 px-6 py-5">
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    {activeHotspot.description}
-                  </p>
-                </div>
-              </Motion.div>
-            )}
-          </AnimatePresence>
         </div>
 
         {/* ── Controller / Classify Panel ── */}
@@ -265,7 +274,7 @@ export default function SmishingSimulator() {
             </p>
           </div>
 
-          {/* All hotspots listed as cards for clarity */}
+          {/* All hotspots listed as cards */}
           <div className="space-y-3">
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Forensic Signals in this message:</p>
             {scenario.hotspots.map((spot) => {
@@ -275,12 +284,12 @@ export default function SmishingSimulator() {
                 <button
                   key={spot.id}
                   onClick={() => toggleHotspot(spot)}
-                  className={`w-full text-left p-5 rounded-2xl border-2 transition-all duration-200 flex items-start gap-4 group ${isActive ? `${c.bg} ${c.ring}` : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}
+                  className={`w-full text-left p-5 rounded-2xl border-2 transition-all duration-200 flex items-start gap-4 group hover:scale-[1.01] ${isActive ? `${c.bg} ${c.ring}` : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg'}`}
                 >
                   <span className={`shrink-0 w-7 h-7 rounded-full ${c.beacon} text-white text-[11px] font-black flex items-center justify-center shadow-lg`}>
                     {spot.label}
                   </span>
-                  <div className="space-y-1 min-w-0">
+                  <div className="space-y-1 min-w-0 flex-1">
                     <div className={`text-[9px] font-black uppercase tracking-widest ${c.text}`}>{spot.tactic}</div>
                     <div className="font-black text-slate-900 dark:text-white text-sm leading-tight">{spot.title}</div>
                     {isActive && (
@@ -293,6 +302,9 @@ export default function SmishingSimulator() {
                       </Motion.p>
                     )}
                   </div>
+                  <span className={`text-slate-400 shrink-0 transition-transform duration-200 ${isActive ? 'rotate-180' : ''}`}>
+                    <ChevronDown className="w-4 h-4" />
+                  </span>
                 </button>
               );
             })}
@@ -305,16 +317,16 @@ export default function SmishingSimulator() {
                 <div className="grid grid-cols-2 gap-4">
                   <button
                     onClick={() => handleChoice(false)}
-                    className="p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all group"
+                    className="p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all group hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
                   >
-                    <CheckCircle2 className="w-8 h-8 text-slate-300 group-hover:text-emerald-500 mb-2 transition-colors" />
+                    <CheckCircle2 className="w-8 h-8 text-slate-300 group-hover:text-emerald-500 mb-2 transition-colors group-hover:scale-110 transition-transform" />
                     <span className="block font-black uppercase text-xs tracking-widest text-slate-400 group-hover:text-emerald-500 transition-colors">Legitimate</span>
                   </button>
                   <button
                     onClick={() => handleChoice(true)}
-                    className="p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 hover:border-rose-500 hover:bg-rose-500/5 transition-all group"
+                    className="p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 hover:border-rose-500 hover:bg-rose-500/5 transition-all group hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
                   >
-                    <ShieldAlert className="w-8 h-8 text-slate-300 group-hover:text-rose-500 mb-2 transition-colors" />
+                    <ShieldAlert className="w-8 h-8 text-slate-300 group-hover:text-rose-500 mb-2 transition-colors group-hover:scale-110 transition-transform" />
                     <span className="block font-black uppercase text-xs tracking-widest text-slate-400 group-hover:text-rose-500 transition-colors">Flag as Phish</span>
                   </button>
                 </div>
@@ -349,13 +361,14 @@ export default function SmishingSimulator() {
                 )}
                 <button
                   onClick={nextScenario}
-                  className="px-8 py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-[11px] tracking-widest uppercase flex items-center gap-3 hover:scale-105 transition-all shadow-xl"
+                  className="px-8 py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-[11px] tracking-widest uppercase flex items-center gap-3 hover:scale-105 transition-all shadow-xl active:scale-95"
                 >
                   Next Scenario <ArrowLeft className="w-4 h-4 rotate-180" />
                 </button>
               </Motion.div>
             )}
           </AnimatePresence>
+
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
             <p className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-bold">Lucky Forensic Lab // Smishing Module</p>
           </div>

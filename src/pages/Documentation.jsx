@@ -1,4 +1,5 @@
-/* coded by lucky */
+// Coded by Lucky
+
 import { motion as Motion } from 'framer-motion';
 import { Book, Shield, Terminal, Mail, Info, AlertTriangle, Lock, Globe } from 'lucide-react';
 
@@ -10,7 +11,7 @@ export default function Documentation() {
       content: 'PhishGuard is an advanced cybersecurity awareness platform designed to educate users on the latest social engineering threats. It combines interactive simulations with real-time analysis tools to provide a hands-on learning experience.'
     },
     {
-      title: 'AI Link Analyzer',
+      title: 'Link Analyzer',
       icon: <Terminal className="w-6 h-6 text-cyan-500" />,
       content: 'The in-browser analyzer uses 12 heuristic checks to identify malicious URL structures. It detects typosquatting, homograph attacks, URL shorteners, IP-based domains, and high-risk TLDs — all without sending your data anywhere.'
     },
@@ -28,11 +29,6 @@ export default function Documentation() {
       title: 'Privacy & Data',
       icon: <Lock className="w-6 h-6 text-cyan-500" />,
       content: 'All URL analysis is performed client-side in your browser using heuristics — no data is ever sent to external servers. PhishGuard operates with zero backend and zero telemetry.'
-    },
-    {
-      title: 'Python CLI Analyzer',
-      icon: <Globe className="w-6 h-6 text-cyan-500" />,
-      content: 'The companion analyzer.py script performs live network checks: real DNS resolution, SSL certificate validation, HTTP response inspection, and WHOIS TLD verification. Run it with: python analyzer.py <domain>'
     }
   ];
 
@@ -71,7 +67,7 @@ export default function Documentation() {
         <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
           All simulations within this platform are strictly for educational cybersecurity awareness. Never enter real sensitive information into the simulation demos. PhishGuard does not store any input data from the Link Analyzer — all processing is local.
         </p>
-        <p className="text-xs text-slate-400 italic">— Coded by Lucky | Om Patel</p>
+        <p className="text-xs text-slate-400 italic">Built for educational cybersecurity awareness.</p>
       </div>
     </Motion.div>
   );

@@ -1,3 +1,4 @@
+// Coded by Lucky
 import { AlertOctagon, Zap, ShieldAlert, BadgeInfo } from 'lucide-react';
 
 const triggers = [

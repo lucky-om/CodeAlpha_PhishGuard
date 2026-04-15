@@ -1,10 +1,11 @@
-/* coded by Lucky */
+// Coded by Lucky
+
 import { useState, useEffect, useRef } from 'react';
 import { motion as Motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
 import { ShieldAlert, Terminal, CheckCircle2, ArrowRight, ShieldCheck, Shield, Zap, TrendingUp, Calendar, AlertTriangle } from 'lucide-react';
 
-// ── Daily Threat Briefing Data ────────────────────────────────────────────────
+
 const DAILY_THREATS = [
   {
     title: 'QR Code Quishing',
@@ -64,7 +65,7 @@ const DAILY_THREATS = [
   },
 ];
 
-// ── CountUp Component (Feature H) ────────────────────────────────────────────
+
 function CountUp({ target, duration = 2000, suffix = '' }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -99,31 +100,31 @@ function CountUp({ target, duration = 2000, suffix = '' }) {
   return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 }
 
-// ── Home Component ─────────────────────────────────────────────────────────────
+
 export default function Home() {
   const todayThreat = DAILY_THREATS[new Date().getDay() % DAILY_THREATS.length];
 
   const features = [
     {
       title: 'Phish Anatomy',
-      desc: 'Investigate high-fidelity email and web deconstructions. Identify hidden red-flags used by threat actors across 5 attack vectors.',
+      desc: 'Review examples of phishing emails and websites. Learn to spot the signs of common scams.',
       path: '/simulation',
       icon: <ShieldAlert className="w-8 h-8 text-rose-500" />,
-      color: 'rose',
+      panelClass: 'bg-rose-500/10',
     },
     {
-      title: 'AI Link Analyzer',
-      desc: 'Deploy an autonomous security agent to safely audit suspicious domains with 18-point heuristic analysis, bulk scanning, and URL decoding.',
+      title: 'Link Analyzer',
+      desc: 'Check suspicious domains to see if they are safe to visit, all running locally in your browser.',
       path: '/analyzer',
       icon: <Terminal className="w-8 h-8 text-cyan-500" />,
-      color: 'cyan',
+      panelClass: 'bg-cyan-500/10',
     },
     {
       title: 'Security IQ Quiz',
-      desc: 'Challenge your threat detection skills with randomized attack scenarios across email, SMS, and web domains. Get your security rating.',
+      desc: 'Challenge your skills with interactive scenarios across email, SMS, and web domains.',
       path: '/quiz',
       icon: <CheckCircle2 className="w-8 h-8 text-emerald-500" />,
-      color: 'emerald',
+      panelClass: 'bg-emerald-500/10',
     },
   ];
 
@@ -134,11 +135,11 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-24 py-12">
+    <div className="space-y-16 sm:space-y-20 lg:space-y-24 py-8 sm:py-12">
 
       {/* Hero Section */}
-      <section className="relative text-center overflow-hidden py-24 px-6 rounded-[3rem] bg-slate-950 border border-slate-800 shadow-3xl group">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-cyan-500)_0%,_transparent_75%)] opacity-[0.03] animate-pulse" />
+      <section className="relative text-center overflow-hidden py-14 sm:py-20 lg:py-24 px-4 sm:px-6 rounded-[2rem] sm:rounded-[3rem] bg-slate-950 border border-slate-800 shadow-2xl group">
+        {/* Background removed to drop AI glow */}
 
         <Motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -146,29 +147,25 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="relative z-10 space-y-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-cyan-950/50 border border-cyan-500/20 text-cyan-500 text-[10px] font-black tracking-[0.2em] uppercase">
-            <Zap className="w-3 h-3" />
-            Active Deployment: PHISHGUARD_SECURE_v3
-          </div>
 
-          <h1 className="text-4xl md:text-7xl font-black tracking-tighter text-white leading-tight italic uppercase">
-            PhishGuard :<br />
+
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-white leading-tight">
+            PhishGuard<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 drop-shadow-2xl">
               Phishing Detection &amp; Prevention
             </span>
           </h1>
 
-          <p className="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed font-medium">
-            Enterprise-grade forensic tools to analyze, detect, and neutralize advanced social engineering threats.
-            18-point URL heuristics, interactive simulations, and a security IQ assessment — all running locally in your browser.
+          <p className="text-slate-500 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed font-medium">
+            A simple and effective tool to help you detect phishing links. Learn about different attacks, test your skills, and stay safe online.
           </p>
 
-          <div className="pt-8 flex flex-wrap justify-center gap-6">
-            <NavLink to="/analyzer" className="px-10 py-5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest shadow-2xl shadow-cyan-500/30 transition-all flex items-center gap-3 group">
+          <div className="pt-6 sm:pt-8 flex flex-wrap justify-center gap-3 sm:gap-6">
+            <NavLink to="/analyzer" className="px-6 sm:px-10 py-4 sm:py-5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-[1.2rem] sm:rounded-[1.5rem] font-black text-xs sm:text-sm uppercase tracking-widest shadow-2xl shadow-cyan-500/30 transition-all flex items-center gap-2 sm:gap-3 group">
               Start Audit
               <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
             </NavLink>
-            <NavLink to="/prevention" className="px-10 py-5 bg-slate-900 hover:bg-slate-800 text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest border-2 border-slate-800 transition-all flex items-center gap-3">
+            <NavLink to="/prevention" className="px-6 sm:px-10 py-4 sm:py-5 bg-slate-900 hover:bg-slate-800 text-white rounded-[1.2rem] sm:rounded-[1.5rem] font-black text-xs sm:text-sm uppercase tracking-widest border-2 border-slate-800 transition-all flex items-center gap-2 sm:gap-3">
               <Shield className="w-5 h-5" /> Prevention
             </NavLink>
           </div>
@@ -186,18 +183,18 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * idx }}
-            className="group p-10 rounded-[2.5rem] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl hover:shadow-cyan-500/5 transition-all hover:border-cyan-500/40 relative overflow-hidden"
+            className="group p-10 rounded-[2.5rem] bg-slate-950 border border-slate-800 shadow-xl hover:shadow-cyan-500/10 transition-all hover:border-cyan-500/40 relative overflow-hidden"
           >
-            <div className={`w-20 h-20 rounded-2xl bg-${feature.color}-500/10 flex items-center justify-center mb-10 group-hover:scale-110 transition-transform shadow-inner`}>
+            <div className={`w-20 h-20 rounded-2xl ${feature.panelClass} flex items-center justify-center mb-10 group-hover:scale-105 transition-transform shadow-inner`}>
               {feature.icon}
             </div>
-            <h3 className="text-3xl font-black mb-4 text-slate-900 dark:text-white group-hover:text-cyan-500 transition-colors uppercase tracking-tighter italic">
+            <h3 className="text-3xl font-black mb-4 text-white group-hover:text-cyan-400 transition-colors tracking-tight">
               {feature.title}
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+            <p className="text-slate-400 leading-relaxed mb-10 font-medium">
               {feature.desc}
             </p>
-            <NavLink to={feature.path} className="inline-flex items-center gap-3 font-black text-xs uppercase tracking-[0.2em] text-cyan-600 dark:text-cyan-400 hover:gap-5 transition-all">
+            <NavLink to={feature.path} className="inline-flex items-center gap-3 font-black text-xs uppercase tracking-[0.2em] text-cyan-400 hover:gap-5 transition-all">
               Launch Module <ArrowRight className="w-4 h-4" />
             </NavLink>
           </Motion.div>
@@ -212,22 +209,21 @@ export default function Home() {
           transition={{ delay: 0.3 }}
           className="p-10 md:p-16 rounded-[3rem] bg-slate-950 border border-slate-800 shadow-2xl overflow-hidden relative group"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/3 blur-3xl rounded-full" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-rose-500/3 blur-3xl rounded-full" />
+
 
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
             <div className="lg:col-span-1 space-y-4">
               <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-cyan-500">
-                <Calendar className="w-3 h-3" /> Daily Threat Briefing
+                <Calendar className="w-3 h-3" /> Phishing Trends
               </div>
               <h2 className="text-3xl font-black text-white leading-tight italic uppercase tracking-tighter">
-                Threat of the Day
+                Latest Phishing Trends
               </h2>
               <p className="text-slate-500 text-sm leading-relaxed">
-                A different emerging phishing technique highlighted every day to keep you current with the evolving threat landscape.
+                Stay updated with the most common phishing techniques to protect yourself from evolving threats.
               </p>
               <NavLink to="/encyclopedia" className="inline-flex items-center gap-2 text-[10px] font-black text-cyan-500 uppercase tracking-widest hover:gap-3 transition-all">
-                Full Encyclopedia <ArrowRight className="w-3 h-3" />
+                Learn More <ArrowRight className="w-3 h-3" />
               </NavLink>
             </div>
 
@@ -259,37 +255,7 @@ export default function Home() {
         </Motion.div>
       </section>
 
-      {/* Stats Section (Feature H — count-up animation) */}
-      <section className="p-16 rounded-[3rem] bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-around gap-12 text-center relative overflow-hidden max-w-7xl mx-auto w-full px-4">
-        <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/5 blur-[100px]" />
-        <div className="space-y-2 relative z-10">
-          <div className="text-5xl font-black text-emerald-500 italic">
-            <CountUp target={18} suffix="+" />
-          </div>
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Detection Checks</div>
-        </div>
-        <div className="w-[1px] h-16 bg-slate-200 dark:bg-slate-800 hidden md:block" />
-        <div className="space-y-2 relative z-10">
-          <div className="text-5xl font-black text-cyan-500 italic">
-            <CountUp target={20} suffix="+" />
-          </div>
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Brand Patterns</div>
-        </div>
-        <div className="w-[1px] h-16 bg-slate-200 dark:bg-slate-800 hidden md:block" />
-        <div className="space-y-2 relative z-10">
-          <div className="text-5xl font-black text-rose-500 italic">
-            <CountUp target={100} suffix="%" />
-          </div>
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Secure Sandbox</div>
-        </div>
-        <div className="w-[1px] h-16 bg-slate-200 dark:bg-slate-800 hidden md:block" />
-        <div className="space-y-2 relative z-10">
-          <div className="text-5xl font-black text-yellow-500 italic">
-            ZERO
-          </div>
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Data Leakage</div>
-        </div>
-      </section>
+
 
     </div>
   );

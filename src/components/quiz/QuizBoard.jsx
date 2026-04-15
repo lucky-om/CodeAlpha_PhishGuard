@@ -1,4 +1,5 @@
-/* coded by Lucky */
+// Coded by Lucky
+
 import { useState } from 'react';
 import { getShuffledQuestions } from '../../utils/quizData';
 import { CheckCircle2, XCircle, ChevronRight, Award, RefreshCw } from 'lucide-react';

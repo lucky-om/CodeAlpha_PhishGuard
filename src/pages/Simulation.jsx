@@ -1,4 +1,5 @@
-// CODED BY LUCKY
+// Coded by Lucky
+
 import WebsiteAnatomy from '../components/simulation/WebsiteAnatomy';
 import EmailGallery from '../components/gallery/EmailGallery';
 import QuishingLab from '../components/simulation/QuishingLab';
@@ -45,13 +46,13 @@ export default function Simulation() {
   return (
     <div className="relative">
 
-      <div className="sticky top-20 z-[90] bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 py-4 mb-12 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+      <div className="sticky top-20 z-[90] bg-slate-950/90 backdrop-blur-xl border-b border-slate-800 py-3 sm:py-4 mb-8 sm:mb-12 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-2 text-cyan-500 font-black text-[10px] uppercase tracking-widest italic shrink-0">
             <ShieldCheck className="w-4 h-4" /> Lab Navigation
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 max-w-[72vw] sm:max-w-none">
             {MODULES.map((mod) => (
               <button
                 key={mod.id}
@@ -62,7 +63,7 @@ export default function Simulation() {
                   }`}
               >
                 {mod.icon}
-                <span className="hidden sm:inline">{mod.name}</span>
+                <span className="hidden md:inline">{mod.name}</span>
               </button>
             ))}
           </div>
@@ -77,12 +78,12 @@ export default function Simulation() {
       <Motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="space-y-32 pb-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        className="space-y-20 sm:space-y-24 lg:space-y-32 pb-24 sm:pb-32 lg:pb-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       >
 
         <section id="anatomy" className="relative pt-12">
           <div className="space-y-4 mb-10 text-center max-w-3xl mx-auto">
-            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center gap-4 italic uppercase tracking-tighter">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white flex items-center justify-center gap-3 sm:gap-4 italic uppercase tracking-tighter">
               <span className="text-cyan-500"><Mail className="w-10 h-10" /></span>
               Phishing Forensic Lab
             </h2>
@@ -95,13 +96,13 @@ export default function Simulation() {
             <div className="flex bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 gap-1">
               <button
                 onClick={() => setAnatomyTab('email')}
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all ${anatomyTab === 'email' ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-md' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+                className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl font-black text-[10px] sm:text-[11px] uppercase tracking-widest transition-all ${anatomyTab === 'email' ? 'bg-slate-800 text-cyan-400 shadow-md' : 'text-slate-500 hover:text-white'}`}
               >
                 <Mail className="w-4 h-4" /> Email Forensics
               </button>
               <button
                 onClick={() => setAnatomyTab('web')}
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all ${anatomyTab === 'web' ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-md' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+                className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl font-black text-[10px] sm:text-[11px] uppercase tracking-widest transition-all ${anatomyTab === 'web' ? 'bg-slate-800 text-cyan-400 shadow-md' : 'text-slate-500 hover:text-white'}`}
               >
                 <Globe className="w-4 h-4" /> Landing Pages
               </button>
@@ -113,7 +114,7 @@ export default function Simulation() {
 
         <section id="otp" className="relative">
           <div className="space-y-4 mb-32 text-center max-w-3xl mx-auto border-t border-slate-100 dark:border-slate-800 pt-32">
-            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center gap-4 italic uppercase tracking-tighter">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white flex items-center justify-center gap-3 sm:gap-4 italic uppercase tracking-tighter">
               <span className="text-amber-500"><Zap className="w-10 h-10" /></span>
               MFA Interception Simulator
             </h2>
@@ -129,7 +130,7 @@ export default function Simulation() {
 
         <section id="quishing" className="relative">
           <div className="space-y-4 mb-16 text-center max-w-3xl mx-auto border-t border-slate-100 dark:border-slate-800 pt-32">
-            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center gap-4 italic uppercase tracking-tighter">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white flex items-center justify-center gap-3 sm:gap-4 italic uppercase tracking-tighter">
               <span className="text-emerald-500"><QrCode className="w-10 h-10" /></span>
               Quishing Simulation
             </h2>
@@ -142,7 +143,7 @@ export default function Simulation() {
 
         <section id="headers" className="relative">
           <div className="space-y-4 mb-16 text-center max-w-3xl mx-auto border-t border-slate-100 dark:border-slate-800 pt-32">
-            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center gap-4 italic uppercase tracking-tighter">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white flex items-center justify-center gap-3 sm:gap-4 italic uppercase tracking-tighter">
               <span className="text-rose-500"><FileSearch className="w-10 h-10" /></span>
               Header Analysis Lab
             </h2>
@@ -155,7 +156,7 @@ export default function Simulation() {
 
         <section id="smishing" className="relative">
           <div className="space-y-4 mb-16 text-center max-w-3xl mx-auto border-t border-slate-100 dark:border-slate-800 pt-32">
-            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center gap-4 italic uppercase tracking-tighter">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white flex items-center justify-center gap-3 sm:gap-4 italic uppercase tracking-tighter">
               <span className="text-indigo-500"><MessageSquare className="w-10 h-10" /></span>
               Mobile Attack Vector
             </h2>

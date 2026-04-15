@@ -1,4 +1,5 @@
-/* coded by lucky */
+// Coded by Lucky
+
 import QuizBoard from '../components/quiz/QuizBoard';
 import { motion as Motion } from 'framer-motion';
 
@@ -25,7 +26,7 @@ export default function Quiz() {
 
       <div className="text-center pt-10">
         <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-          PhishGuard Security Assessment Module v3.0.0
+          PhishGuard Security Assessment Module v4.0.0
         </p>
       </div>
     </Motion.div>

@@ -1,7 +1,6 @@
+// Coded by Lucky
 /*
-  PhishGuard Heuristic Engine v3.0.0
-  Client-side URL analysis — 18 detection checks
-  Coded by Lucky // Om Patel
+  PhishGuard Heuristic Engine v4.0.0
 */
 
 // ── Brand Impersonation Patterns ──────────────────────────────────────────────

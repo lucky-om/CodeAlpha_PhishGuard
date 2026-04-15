@@ -1,4 +1,5 @@
-/* coded by lucky */
+// Coded by Lucky
+
 import PhishingWiki from '../components/encyclopedia/PhishingWiki';
 import { motion as Motion } from 'framer-motion';
 

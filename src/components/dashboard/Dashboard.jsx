@@ -1,3 +1,4 @@
+// Coded by Lucky
 import { ShieldCheck, Smartphone, PhoneCall, AlertTriangle, ArrowRight } from 'lucide-react';
 
 const practices = [

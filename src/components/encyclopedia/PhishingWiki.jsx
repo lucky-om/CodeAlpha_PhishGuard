@@ -1,4 +1,5 @@
-/* coded by lucky */
+// Coded by Lucky
+
 import { useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -76,6 +77,13 @@ const phishingTypes = [
 export default function PhishingWiki() {
   const [selected, setSelected] = useState(phishingTypes[0]);
 
+  const handleSelect = (type) => {
+    setSelected(type);
+    setTimeout(() => {
+      document.getElementById('wiki-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
   return (
     <div className="space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -93,7 +101,7 @@ export default function PhishingWiki() {
             {phishingTypes.map((type) => (
               <button
                 key={type.id}
-                onClick={() => setSelected(type)}
+                onClick={() => handleSelect(type)}
                 className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all border ${
                   selected.id === type.id 
                     ? 'bg-cyan-500 border-cyan-500 text-white shadow-lg shadow-cyan-500/20 translate-x-1' 
@@ -110,7 +118,7 @@ export default function PhishingWiki() {
         </div>
 
         {/* Content Display */}
-        <div className="lg:col-span-8">
+        <div className="lg:col-span-8" id="wiki-content">
            <AnimatePresence mode="wait">
               <Motion.div
                 key={selected.id}

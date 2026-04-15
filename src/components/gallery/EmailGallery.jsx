@@ -1,9 +1,7 @@
-/*  
-  This module simulates real phishing vectors with high-fidelity deconstructions.
-  Coded by Lucky 
-*/
+// Coded by Lucky
+
 import { useState, useEffect } from 'react';
-import { Mail, AlertCircle, ShieldAlert, CheckCircle2, Target, Info, MousePointer2 } from 'lucide-react';
+import { Mail, AlertCircle, ShieldAlert, CheckCircle2, Info } from 'lucide-react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useGame } from '../../context/GameContext';
 
@@ -104,18 +102,27 @@ export default function EmailGallery() {
   ];
 
   const [activeEmail, setActiveEmail] = useState(emails[0]);
-  const [showHotspots, setShowHotspots] = useState(false);
+  const [activeHotspot, setActiveHotspot] = useState(null);
   const [discoveredHotspots, setDiscoveredHotspots] = useState([]);
 
   useEffect(() => {
     if (discoveredHotspots.length === activeEmail.hotspots.length) {
-      markSectionComplete('simulation');
+      markSectionComplete('gallery');
     }
   }, [discoveredHotspots, activeEmail, markSectionComplete]);
 
-  const handleHotspotClick = (id) => {
+  const handleHotspotClick = (spot) => {
+    const isActivating = activeHotspot?.id !== spot.id;
+    setActiveHotspot(isActivating ? spot : null);
+    const { id } = spot;
     if (!discoveredHotspots.includes(id)) {
       setDiscoveredHotspots([...discoveredHotspots, id]);
+    }
+    
+    if (isActivating) {
+      setTimeout(() => {
+        document.getElementById('email-hotspot-info')?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 100);
     }
   };
 
@@ -141,7 +148,7 @@ export default function EmailGallery() {
               onClick={() => {
                 setActiveEmail(email);
                 setDiscoveredHotspots([]);
-                setShowHotspots(false);
+                setActiveHotspot(null);
               }}
               className={`w-full text-left p-6 rounded-[2rem] transition-all border group relative overflow-hidden ${activeEmail.id === email.id
                   ? 'bg-cyan-500 border-cyan-500 text-white shadow-2xl shadow-cyan-500/20 translate-x-1'
@@ -171,7 +178,7 @@ export default function EmailGallery() {
         <div className="flex-1 bg-white dark:bg-slate-950 rounded-[3rem] border-2 border-slate-100 dark:border-slate-800 shadow-3xl relative overflow-hidden flex flex-col group">
 
           {/* Email Inspection Header */}
-          <div className="p-10 border-b border-slate-100 dark:border-slate-900 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-950 shadow-sm relative z-10">
+          <div className="p-8 border-b border-slate-100 dark:border-slate-900 flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white dark:bg-slate-950 shadow-sm relative z-10">
             <div className="flex items-center gap-5">
               <div className="w-16 h-16 rounded-[1.5rem] bg-slate-900 flex items-center justify-center text-cyan-500 text-2xl font-black italic shadow-inner border border-slate-800">
                 {activeEmail.name[0]}
@@ -185,16 +192,7 @@ export default function EmailGallery() {
               </div>
             </div>
 
-            <button
-              onClick={() => setShowHotspots(!showHotspots)}
-              className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${showHotspots
-                  ? 'bg-rose-500 text-white shadow-2xl shadow-rose-500/30 ring-4 ring-rose-500/10'
-                  : 'bg-slate-900 text-cyan-500 border border-cyan-500/20 hover:scale-105 active:scale-95'
-                }`}
-            >
-              {showHotspots ? 'Deactivating Forensic View' : 'Investigate Markers'}
-              <Target className={`w-4 h-4 ${showHotspots ? 'animate-spin' : ''}`} />
-            </button>
+            <div className="text-right" />
           </div>
 
           {/* Realistic Viewport */}
@@ -213,108 +211,54 @@ export default function EmailGallery() {
 
               {activeEmail.content}
 
-              {/* Absolute Hotspot Markers Layer */}
+              {/* Absolute hotspot markers layer (desktop/tablet) */}
               <AnimatePresence>
-                {showHotspots && activeEmail.hotspots.map((spot) => (
+                {activeEmail.hotspots.map((spot, idx) => (
                   <Motion.div
                     key={spot.id}
                     initial={{ scale: 0, opacity: 0, rotate: -45 }}
                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
                     exit={{ scale: 0, opacity: 0, rotate: 45 }}
                     style={{ top: spot.top, left: spot.left }}
-                    className="absolute z-20"
+                    className="absolute z-20 -translate-x-1/2 -translate-y-1/2"
                   >
                     <button
-                      onClick={() => handleHotspotClick(spot.id)}
-                      className={`w-12 h-12 rounded-full border-4 flex items-center justify-center transition-all group/spot ${discoveredHotspots.includes(spot.id)
-                          ? 'bg-emerald-500 border-white shadow-xl shadow-emerald-500/50'
-                          : 'bg-rose-500 border-white shadow-xl shadow-rose-500/50 animate-bounce'
+                      onClick={() => handleHotspotClick(spot)}
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center transition-all ${discoveredHotspots.includes(spot.id)
+                          ? 'bg-emerald-500 border-white shadow-lg shadow-emerald-500/40'
+                          : 'bg-rose-500 border-white shadow-lg shadow-rose-500/40'
                         }`}
                     >
-                      <Target className="w-6 h-6 text-white" />
-
-                      {!discoveredHotspots.includes(spot.id) && (
-                        <div className="absolute inset-0 rounded-full bg-rose-500 animate-ping opacity-25"></div>
-                      )}
+                      <span className="w-5 h-5 text-white font-bold text-xs flex items-center justify-center">{idx + 1}</span>
                     </button>
-
-                    {/* Professional Forensic Tooltip */}
-                    {discoveredHotspots.includes(spot.id) && (
-                      <Motion.div
-                        initial={{ opacity: 0, y: 15, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-5 w-80 p-8 bg-slate-900 border-2 border-emerald-500/30 rounded-[2rem] shadow-4xl text-left pointer-events-none z-30"
-                      >
-                        <div className="flex items-center gap-3 text-emerald-500 mb-4 font-mono">
-                          <ShieldAlert className="w-5 h-5 flex-shrink-0" />
-                          <span className="font-black text-[9px] uppercase tracking-[0.2em]">Malicious Vector: {spot.tactic}</span>
-                        </div>
-                        <h5 className="text-white font-black text-lg mb-3 uppercase italic tracking-tighter leading-none">{spot.title}</h5>
-                        <p className="text-[11px] text-slate-400 leading-relaxed font-bold italic">{spot.description}</p>
-
-                        {/* Decorative Tooltip Arrow */}
-                        <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[12px] border-t-slate-900"></div>
-                      </Motion.div>
-                    )}
                   </Motion.div>
                 ))}
               </AnimatePresence>
             </div>
-          </div>
-
-          {/* Visual Instruction Overlay */}
-          {!showHotspots && discoveredHotspots.length === 0 && (
-            <div className="absolute bottom-8 right-8 flex items-center gap-3 px-6 py-3 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-black text-[10px] uppercase tracking-widest animate-pulse pointer-events-none">
-              <MousePointer2 className="w-4 h-4" /> Click Investigate to start audit
-            </div>
-          )}
-        </div>
-
-        {/* Intelligence Progress Bar */}
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-2xl relative overflow-hidden group">
-          <div className="flex items-center gap-10 relative z-10 w-full">
-            <div className="flex-1 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Threat Forensic Progress</span>
-                <span className="text-[10px] font-mono font-black text-cyan-500">
-                  {Math.round((discoveredHotspots.length / activeEmail.hotspots.length) * 100)}% COMPLETE
-                </span>
-              </div>
-              <div className="h-2.5 bg-slate-100 dark:bg-slate-950 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner p-0.5">
-                <Motion.div
-                  key={activeEmail.id + discoveredHotspots.length}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(discoveredHotspots.length / activeEmail.hotspots.length) * 100}%` }}
-                  className={`h-full rounded-full transition-all duration-700 shadow-[0_0_15px_rgba(6,182,212,0.5)] ${discoveredHotspots.length === activeEmail.hotspots.length ? 'bg-emerald-500' : 'bg-cyan-500'
-                    }`}
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col items-end gap-1">
-              <div className="text-3xl font-black text-slate-900 dark:text-white italic leading-none">
-                {discoveredHotspots.length}<span className="text-slate-400 dark:text-slate-700 mx-1">/</span>{activeEmail.hotspots.length}
-              </div>
-              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Markers Found</span>
+            
+            {/* Active Hotspot Details Panel */}
+            <div id="email-hotspot-info">
+              <AnimatePresence>
+                {activeHotspot && (
+                  <Motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    className="mt-8 p-6 mx-auto max-w-2xl rounded-2xl bg-slate-900 border border-emerald-500/20 shadow-xl"
+                  >
+                    <div className="flex items-center gap-3 text-emerald-400 mb-3">
+                      <ShieldAlert className="w-5 h-5" />
+                      <span className="text-xs font-bold uppercase tracking-widest">{activeHotspot.tactic}</span>
+                    </div>
+                    <h4 className="text-lg font-bold text-white mb-2">{activeHotspot.title}</h4>
+                    <p className="text-sm text-slate-400 leading-relaxed">{activeHotspot.description}</p>
+                  </Motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
-
-          <AnimatePresence>
-            {discoveredHotspots.length === activeEmail.hotspots.length && (
-              <Motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="absolute inset-0 bg-emerald-500/10 backdrop-blur-sm flex items-center justify-center gap-4 border border-emerald-500/20"
-              >
-                <div className="bg-emerald-500 text-white p-2 rounded-full shadow-lg shadow-emerald-500/50">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <span className="font-black text-sm uppercase tracking-tighter italic text-emerald-600 dark:text-emerald-400">Section Neutralized: Forensic Analysis Complete</span>
-              </Motion.div>
-            )}
-          </AnimatePresence>
         </div>
+
       </div>
     </div>
   );

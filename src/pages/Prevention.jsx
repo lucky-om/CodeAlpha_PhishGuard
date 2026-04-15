@@ -1,4 +1,5 @@
-/* coded by lucky */
+// Coded by Lucky
+
 import { useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { 

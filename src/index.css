@@ -1,3 +1,4 @@
+/* Coded by Lucky */
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
@@ -11,18 +12,6 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
-/* Custom Cyber Glow Utilities */
-@utility shadow-cyber-cyan {
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
-}
-
-@utility shadow-cyber-rose {
-  box-shadow: 0 0 20px rgba(244, 63, 94, 0.2);
-}
-
-@utility shadow-cyber-emerald {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
-}
 
 /* Hides scrollbar in both Firefox (scrollbar-width) and Chrome (::-webkit-scrollbar).
    Pseudo-selectors cannot appear in @utility names in Tailwind v4 — must nest inside. */
@@ -35,21 +24,12 @@
 
 @layer base {
   :root {
-    --background: #f8fafc;
-    --foreground: #020617;
-  }
-
-  .dark {
     --background: #020617;
     --foreground: #f8fafc;
   }
 
   * {
     box-sizing: border-box;
-    border-color: var(--color-slate-200);
-  }
-
-  .dark * {
     border-color: var(--color-slate-800);
   }
 
@@ -111,24 +91,6 @@ pre {
   scrollbar-color: #334155 transparent;
 }
 
-/* Glow animation for pulses */
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 6px rgba(6,182,212,0.4); }
-  50% { box-shadow: 0 0 20px rgba(6,182,212,0.8); }
-}
-
-.animate-glow {
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-/* Grid overlay background pattern */
-.bg-grid {
-  background-image:
-    linear-gradient(rgba(6,182,212,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(6,182,212,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
 /* Selection color */
 ::selection {
   background: rgba(6,182,212,0.25);
@@ -145,17 +107,3 @@ pre {
   -moz-appearance: textfield;
 }
 
-/* Confetti particle fall animation (QuizBoard perfect score) */
-@keyframes confetti-fall {
-  0% {
-    transform: translateY(-10px) rotate(0deg) translateX(0px);
-    opacity: 1;
-  }
-  60% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) rotate(720deg) translateX(var(--drift, 0px));
-    opacity: 0;
-  }
-}
