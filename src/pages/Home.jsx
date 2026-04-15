@@ -150,7 +150,7 @@ export default function Home() {
 
 
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-white leading-tight">
-            PhishGuard<br />
+            PhishGuard : <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 drop-shadow-2xl">
               Phishing Detection &amp; Prevention
             </span>
